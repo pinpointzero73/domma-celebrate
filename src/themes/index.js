@@ -96,6 +96,9 @@ export function registerTheme(name, definition) {
   if (!name || typeof name !== 'string') {
     throw new TypeError('registerTheme: name must be a non-empty string');
   }
+  if (Object.hasOwn(THEMES, name)) {
+    throw new TypeError(`registerTheme("${name}"): cannot replace a built-in theme`);
+  }
   if (!definition || (!definition.module && typeof definition.load !== 'function')) {
     throw new TypeError(`registerTheme("${name}"): needs either a "module" object or a "load" function`);
   }
@@ -116,12 +119,12 @@ export function unregisterTheme(name) {
 
 /** Every known theme, built-in and runtime-registered, keyed by name. */
 export function getThemes() {
-  return { ...THEMES, ...custom };
+  return { ...custom, ...THEMES };
 }
 
 /** One theme's descriptor, or undefined. */
 export function getTheme(name) {
-  return custom[name] || THEMES[name];
+  return THEMES[name] || custom[name];
 }
 
 /**
