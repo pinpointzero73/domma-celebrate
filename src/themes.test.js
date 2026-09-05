@@ -92,6 +92,13 @@ describe('registry', () => {
   it('rejects a definition with nothing to load', () => {
     expect(() => registerTheme('broken', {})).toThrow(/module.*load/);
   });
+
+  it('does not allow runtime themes to replace built-ins', () => {
+    expect(() => registerTheme('christmas', {
+      module: { name: 'custom-christmas' }
+    })).toThrow(/cannot replace a built-in theme/);
+    expect(getTheme('christmas')).toBe(THEMES.christmas);
+  });
 });
 
 describe('shipped themes', () => {

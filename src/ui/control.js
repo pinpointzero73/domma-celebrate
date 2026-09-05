@@ -48,8 +48,9 @@ export function mountControl(celebrations, options = {}) {
     storageKey: options.storageKey === null ? null : (options.storageKey || 'domma-celebrate'),
     icon: options.icon || SPARKLES_ICON
   };
+  const ownerDocument = config.mount.ownerDocument || document;
 
-  injectStyles(config.mount.ownerDocument || document);
+  injectStyles(ownerDocument);
 
   const store = createStore(config.storageKey);
   const teardown = [];
@@ -218,16 +219,16 @@ export function mountControl(celebrations, options = {}) {
     renderTraits();
     panel.hidden = false;
     traitsButton.setAttribute('aria-expanded', 'true');
-    document.addEventListener('click', onDocumentClick, true);
-    document.addEventListener('keydown', onKeydown);
+    ownerDocument.addEventListener('click', onDocumentClick, true);
+    ownerDocument.addEventListener('keydown', onKeydown);
   }
 
   function closePanel() {
     if (!panel || panel.hidden) return;
     panel.hidden = true;
     traitsButton.setAttribute('aria-expanded', 'false');
-    document.removeEventListener('click', onDocumentClick, true);
-    document.removeEventListener('keydown', onKeydown);
+    ownerDocument.removeEventListener('click', onDocumentClick, true);
+    ownerDocument.removeEventListener('keydown', onKeydown);
   }
 
   function onPanelToggle() {
