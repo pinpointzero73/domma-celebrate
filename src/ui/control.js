@@ -58,7 +58,7 @@ export function mountControl(celebrations, options = {}) {
   element.className = 'domma-celebrate-control';
   element.dataset.position = config.position;
 
-  // ── The on/off disc ────────────────────────────────────────────────────────
+  // --- The on/off disc ---
   const discs = document.createElement('div');
   discs.className = 'domma-celebrate-discs';
 
@@ -66,7 +66,7 @@ export function mountControl(celebrations, options = {}) {
   toggle.setAttribute('aria-pressed', 'false');
   discs.appendChild(toggle);
 
-  // ── The traits panel ───────────────────────────────────────────────────────
+  // --- The traits panel ---
   let traitsButton = null;
   let panel = null;
   let traitInputs = new Map();
@@ -84,7 +84,7 @@ export function mountControl(celebrations, options = {}) {
 
   element.appendChild(discs);
 
-  // ── Intensity ──────────────────────────────────────────────────────────────
+  // --- Intensity ---
   let intensityButtons = [];
   if (config.intensity) {
     const group = document.createElement('div');
