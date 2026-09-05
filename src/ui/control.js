@@ -153,7 +153,7 @@ export function mountControl(celebrations, options = {}) {
       input.dataset.trait = name;
       input.addEventListener('change', onTraitChange);
 
-      const text = document.createElement('span');
+      const text = ownerDocument.createElement('span');
       text.textContent = trait.label;
 
       row.append(input, text);
