@@ -1231,7 +1231,7 @@ export default {
 
     ctx.restore();   // closes dragon save (line 856)
 
-    ctx.restore();   // closes flag save (line 804) - THIS WAS MISSING
+    ctx.restore();
   },
 
   /**

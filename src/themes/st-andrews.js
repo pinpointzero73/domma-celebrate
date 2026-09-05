@@ -11,6 +11,8 @@
  * - Blue and white color scheme with purple thistles
  */
 
+const tartanPatternCanvases = new WeakMap();
+
 export default {
   name: 'st-andrews',
   displayName: 'St Andrew\'s Day',
@@ -934,10 +936,13 @@ export default {
 
     // Create authentic tartan weave pattern
     const patternSize = 120; // Smaller repeating unit
-    const patternCanvas = document.createElement('canvas');
-    patternCanvas.width = patternSize;
-    patternCanvas.height = patternSize;
-    const pCtx = patternCanvas.getContext('2d');
+    const patternDocument = ctx.canvas?.ownerDocument || document;
+    let patternCanvas = tartanPatternCanvases.get(patternDocument);
+    if (!patternCanvas) {
+      patternCanvas = patternDocument.createElement('canvas');
+      patternCanvas.width = patternSize;
+      patternCanvas.height = patternSize;
+      const pCtx = patternCanvas.getContext('2d');
 
     // Royal Stewart tartan colors
     const NAVY = '#1a237e';
@@ -996,6 +1001,8 @@ export default {
     // Reset composite operation
     pCtx.globalCompositeOperation = 'source-over';
     pCtx.globalAlpha = 1;
+      tartanPatternCanvases.set(patternDocument, patternCanvas);
+    }
 
     // Draw the tartan pattern (tiled)
     const pattern = ctx.createPattern(patternCanvas, 'repeat');

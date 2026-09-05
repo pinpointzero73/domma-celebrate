@@ -96,6 +96,9 @@ export function registerTheme(name, definition) {
   if (!name || typeof name !== 'string') {
     throw new TypeError('registerTheme: name must be a non-empty string');
   }
+  if (THEMES[name]) {
+    throw new Error(`registerTheme("${name}"): cannot replace a built-in theme`);
+  }
   if (!definition || (!definition.module && typeof definition.load !== 'function')) {
     throw new TypeError(`registerTheme("${name}"): needs either a "module" object or a "load" function`);
   }
