@@ -1,0 +1,59 @@
+{
+  "name": "domma-celebrate",
+  "version": "1.0.0",
+  "description": "Seasonal canvas celebrations for any website - eight themes that know their own place in the calendar. The celebrations engine of Domma, usable standalone.",
+  "author": "Darryl Waterhouse",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pinpointzero73/domma-celebrate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pinpointzero73/domma-celebrate/issues"
+  },
+  "homepage": "https://github.com/pinpointzero73/domma-celebrate#readme",
+  "type": "module",
+  "main": "./dist/domma-celebrate.cjs",
+  "module": "./dist/domma-celebrate.esm.js",
+  "browser": "./dist/domma-celebrate.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/domma-celebrate.esm.js",
+      "require": "./dist/domma-celebrate.cjs",
+      "default": "./dist/domma-celebrate.esm.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prebuild": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "rollup -c",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:dist": "npm run build && node scripts/verify-dist.mjs",
+    "demo": "npm run build && node scripts/serve-demo.mjs",
+    "prepublishOnly": "npm run test:run && npm run test:dist"
+  },
+  "keywords": [
+    "canvas",
+    "celebrations",
+    "seasonal",
+    "christmas",
+    "halloween",
+    "particles",
+    "animation",
+    "effects",
+    "domma"
+  ],
+  "devDependencies": {
+    "@rollup/plugin-replace": "^6.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "jsdom": "24.1.3",
+    "rollup": "4.62.2",
+    "vitest": "4.1.9"
+  }
+}

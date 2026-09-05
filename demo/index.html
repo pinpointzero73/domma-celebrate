@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>domma-celebrate</title>
+  <style>
+    /* No framework here on purpose: this page is the proof that the library
+       needs nothing but a script tag. */
+    :root {
+      color-scheme: dark;
+      --bg: #10131a;
+      --panel: #181c26;
+      --line: #262c3a;
+      --text: #e8ecf4;
+      --muted: #9aa4b8;
+      --accent: #7aa2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(1200px 600px at 50% -10%, #1b2333, var(--bg));
+      color: var(--text);
+      font: 15px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 900px; margin: 0 auto; padding: 3rem 1.25rem 6rem; }
+    h1 { font-size: 2rem; margin: 0 0 .35rem; letter-spacing: -0.02em; }
+    h2 { font-size: 1rem; margin: 2.25rem 0 .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .lede { color: var(--muted); margin: 0 0 2rem; max-width: 60ch; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+    .row + .row { margin-top: .9rem; }
+    label.field { display: flex; align-items: center; gap: .5rem; color: var(--muted); font-size: .85rem; }
+    select, button {
+      font: inherit;
+      color: var(--text);
+      background: #1f2532;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: .45rem .8rem;
+      cursor: pointer;
+    }
+    button:hover, select:hover { border-color: var(--accent); }
+    button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #0d1017; }
+    #status { color: var(--muted); font-size: .85rem; margin-left: auto; font-variant-numeric: tabular-nums; }
+    #traits {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: .4rem .9rem;
+      margin-top: .25rem;
+    }
+    #traits label { display: flex; align-items: center; gap: .55rem; cursor: pointer; }
+    #traits input { accent-color: var(--accent); width: 16px; height: 16px; }
+    code { background: #0d1017; border: 1px solid var(--line); border-radius: 5px; padding: .1rem .35rem; font-size: .85em; }
+    pre {
+      background: #0d1017; border: 1px solid var(--line); border-radius: 10px;
+      padding: 1rem 1.1rem; overflow-x: auto; font-size: .85rem; line-height: 1.55;
+    }
+    footer { color: var(--muted); font-size: .85rem; margin-top: 3rem; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+<main>
+  <h1>domma-celebrate</h1>
+  <p class="lede">
+    Eight celebrations that know their own place in the calendar. Pick one below, then switch
+    individual traits off - the sleigh, the steam train, the witches - and watch the canvas
+    reseed. Nothing on this page uses a framework.
+  </p>
+
+  <div class="panel">
+    <div class="row">
+      <label class="field">Theme
+        <select id="theme"></select>
+      </label>
+      <label class="field">Intensity</label>
+      <button data-intensity="light">Light</button>
+      <button data-intensity="medium" aria-pressed="true">Medium</button>
+      <button data-intensity="heavy">Heavy</button>
+      <button id="power">Turn on</button>
+      <span id="status">off</span>
+    </div>
+    <div class="row" style="flex-direction: column; align-items: stretch;">
+      <h2 style="margin: .75rem 0 0;">What appears</h2>
+      <div id="traits"></div>
+    </div>
+  </div>
+
+  <h2>One script tag</h2>
+  <pre><code>&lt;script src="domma-celebrate.min.js" data-celebrate&gt;&lt;/script&gt;</code></pre>
+  <p class="lede">
+    That is the whole integration. It works out whether anything is in season, draws it, and
+    mounts a control disc so a visitor can turn it off - remembered for next time.
+  </p>
+
+  <h2>Or drive it yourself</h2>
+  <pre><code>import { Celebrations } from 'domma-celebrate';
+
+const celebrations = new Celebrations({
+  theme: 'christmas',
+  intensity: 'medium',
+  traits: { train: false, elf: false, tree: 0.5 }
+});
+
+await celebrations.init();</code></pre>
+
+  <footer>
+    Extracted from <a href="https://dommajs.org">Domma</a>. MPL-2.0.
+  </footer>
+</main>
+
+<script type="module">
+  import { Celebrations, getThemes } from '../dist/domma-celebrate.esm.js';
+
+  const themeSelect = document.getElementById('theme');
+  const traitsHost = document.getElementById('traits');
+  const power = document.getElementById('power');
+  const status = document.getElementById('status');
+  const intensityButtons = [...document.querySelectorAll('[data-intensity]')];
+
+  // Nothing is remembered here: a demo that quietly restored last week's
+  // choices would look broken to the next person who opened it.
+  const celebrations = new Celebrations({
+    theme: 'christmas',
+    enabled: false,
+    respectMotionPreference: false,
+    debug: true
+  });
+
+  for (const [name, theme] of Object.entries(getThemes())) {
+    themeSelect.append(new Option(`${theme.emoji} ${theme.displayName}`, name, false, name === 'christmas'));
+  }
+
+  function renderTraits() {
+    const traits = celebrations.getTraits();
+    traitsHost.textContent = '';
+
+    if (!Object.keys(traits).length) {
+      traitsHost.textContent = 'Turn the effect on to see this theme’s traits.';
+      return;
+    }
+
+    for (const [name, trait] of Object.entries(traits)) {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = trait.enabled;
+      input.addEventListener('change', () => celebrations.setTrait(name, input.checked));
+      label.append(input, Object.assign(document.createElement('span'), { textContent: trait.label }));
+      traitsHost.append(label);
+    }
+  }
+
+  function render() {
+    const state = celebrations.getState();
+    power.textContent = state.enabled ? 'Turn off' : 'Turn on';
+    status.textContent = state.enabled
+      ? `${state.particles} particles · ${state.theme}`
+      : 'off';
+    for (const button of intensityButtons) {
+      button.setAttribute('aria-pressed', String(button.dataset.intensity === state.intensity));
+    }
+  }
+
+  power.addEventListener('click', async () => {
+    power.disabled = true;
+    await celebrations.toggle();
+    power.disabled = false;
+    renderTraits();
+    render();
+  });
+
+  themeSelect.addEventListener('change', async () => {
+    await celebrations.setTheme(themeSelect.value);
+    renderTraits();
+    render();
+  });
+
+  for (const button of intensityButtons) {
+    button.addEventListener('click', () => {
+      celebrations.setIntensity(button.dataset.intensity);
+      render();
+    });
+  }
+
+  celebrations.on('traitChange', render);
+
+  // A live particle count is the quickest way to see a trait actually take
+  // effect, and it costs one timer.
+  setInterval(render, 500);
+
+  renderTraits();
+  render();
+</script>
+</body>
+</html>
