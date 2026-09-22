@@ -1,0 +1,109 @@
+# Open a version-bump PR in domma when domma-celebrate releases.
+#
+# domma/package.json depends on domma-celebrate, so a celebrate release leaves
+# domma a version behind until someone remembers. This does the remembering.
+#
+# Mirrors domma-reactive/.github/workflows/bump-js-and-cms-from-reactive.yml,
+# with one target rather than two: domma-cms does not depend on celebrate.
+#
+# Fires on tags only, never on plain pushes. The reactive workflow learned that
+# the hard way - triggering on any push to package.json or src/** opened bump
+# PRs downstream for routine commits, and failed on every one of them while
+# CROSS_REPO_PAT was unset.
+#
+# Needs a CROSS_REPO_PAT secret on this repository: a PAT with contents:write
+# and pull-requests:write on pinpointzero73/domma.
+name: Bump domma-js when domma-celebrate releases
+
+on:
+  push:
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TARGET_OWNER: pinpointzero73
+  TARGET_REPO: domma
+  TARGET_LABEL: domma-js
+
+jobs:
+  bump-domma:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the token is present
+        env:
+          TOKEN: ${{ secrets.CROSS_REPO_PAT }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::CROSS_REPO_PAT is not set - cannot push to ${TARGET_OWNER}/${TARGET_REPO}"
+            exit 1
+          fi
+
+      - name: Resolve source label
+        run: |
+          case "$GITHUB_REF" in
+            refs/tags/*) echo "SRC_LABEL=${GITHUB_REF_NAME}" >> "$GITHUB_ENV" ;;
+            *)           echo "SRC_LABEL=${GITHUB_SHA::7}"   >> "$GITHUB_ENV" ;;
+          esac
+
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone ${{ env.TARGET_LABEL }}
+        env:
+          TOKEN: ${{ secrets.CROSS_REPO_PAT }}
+        run: |
+          git clone "https://x-access-token:${TOKEN}@github.com/${TARGET_OWNER}/${TARGET_REPO}.git" target
+          cd target
+          git checkout -b "bump/celebrate-${SRC_LABEL}"
+
+      # Two edits in one commit: the dependency range that actually needs
+      # moving, and a patch bump so domma ships a version carrying it.
+      - name: Point domma at domma-celebrate ${{ env.SRC_LABEL }} and bump
+        run: |
+          cd target
+          SRC_VERSION="${SRC_LABEL#v}"
+          node -e "
+            const fs = require('node:fs');
+            const raw = fs.readFileSync('package.json', 'utf8');
+            const pkg = JSON.parse(raw);
+            // domma indents with four spaces, celebrate with two. Re-emitting
+            // at a fixed width would reformat all 107 lines and bury the two
+            // that changed, so reuse whatever the file already uses.
+            const indent = (raw.match(/\n(\s+)\"/) || [null, '  '])[1];
+            let touched = false;
+            for (const field of ['dependencies', 'devDependencies', 'peerDependencies']) {
+              if (pkg[field] && pkg[field]['domma-celebrate']) {
+                pkg[field]['domma-celebrate'] = '^${SRC_VERSION}';
+                console.log('set', field + '.domma-celebrate', '->', '^${SRC_VERSION}');
+                touched = true;
+              }
+            }
+            if (!touched) console.log('note: no domma-celebrate range found; bumping version only');
+            const parts = (pkg.version || '0.0.0').split('.').map(n => parseInt(n || 0, 10));
+            parts[2] = (parts[2] || 0) + 1;
+            pkg.version = parts.join('.');
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, indent) + '\n');
+            console.log('new version', pkg.version);
+          "
+          git add package.json
+          git commit -m "chore: bump domma-js for domma-celebrate ${SRC_LABEL}" || echo "no changes to commit"
+          git push --set-upstream origin HEAD
+
+      - name: Create PR for ${{ env.TARGET_LABEL }}
+        env:
+          TOKEN: ${{ secrets.CROSS_REPO_PAT }}
+        run: |
+          cd target
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          TITLE="chore: bump domma-js for domma-celebrate ${SRC_LABEL}"
+          BODY="Automated dependency bump for the domma-celebrate ${SRC_LABEL} release. Source: ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+          jq -n --arg head "$BRANCH" --arg title "$TITLE" --arg body "$BODY" \
+            '{head:$head, base:"main", title:$title, body:$body}' > /tmp/pr.json
+          curl -sS -X POST -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}/pulls" \
+            -d @/tmp/pr.json
