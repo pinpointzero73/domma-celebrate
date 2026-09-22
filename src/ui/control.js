@@ -55,29 +55,29 @@ export function mountControl(celebrations, options = {}) {
   const store = createStore(config.storageKey);
   const teardown = [];
 
-  const element = document.createElement('div');
+  const element = ownerDocument.createElement('div');
   element.className = 'domma-celebrate-control';
   element.dataset.position = config.position;
 
-  // --- The on/off disc ---
-  const discs = document.createElement('div');
+  // ── The on/off disc ────────────────────────────────────────────────────────
+  const discs = ownerDocument.createElement('div');
   discs.className = 'domma-celebrate-discs';
 
-  const toggle = button('domma-celebrate-toggle', config.label, config.icon);
+  const toggle = button('domma-celebrate-toggle', config.label, config.icon, ownerDocument);
   toggle.setAttribute('aria-pressed', 'false');
   discs.appendChild(toggle);
 
-  // --- The traits panel ---
+  // ── The traits panel ───────────────────────────────────────────────────────
   let traitsButton = null;
   let panel = null;
   let traitInputs = new Map();
 
   if (config.traits) {
-    traitsButton = button('domma-celebrate-settings', 'Choose what appears', SLIDERS_ICON);
+    traitsButton = button('domma-celebrate-settings', 'Choose what appears', SLIDERS_ICON, ownerDocument);
     traitsButton.setAttribute('aria-expanded', 'false');
     discs.appendChild(traitsButton);
 
-    panel = document.createElement('div');
+    panel = ownerDocument.createElement('div');
     panel.className = 'domma-celebrate-panel';
     panel.hidden = true;
     element.appendChild(panel);
@@ -85,16 +85,16 @@ export function mountControl(celebrations, options = {}) {
 
   element.appendChild(discs);
 
-  // --- Intensity ---
+  // ── Intensity ──────────────────────────────────────────────────────────────
   let intensityButtons = [];
   if (config.intensity) {
-    const group = document.createElement('div');
+    const group = ownerDocument.createElement('div');
     group.className = 'domma-celebrate-intensity';
     group.setAttribute('role', 'group');
     group.setAttribute('aria-label', 'Celebration intensity');
 
     intensityButtons = INTENSITIES.map(level => {
-      const item = document.createElement('button');
+      const item = ownerDocument.createElement('button');
       item.type = 'button';
       item.dataset.intensity = level;
       item.textContent = level.charAt(0).toUpperCase() + level.slice(1);
@@ -125,7 +125,7 @@ export function mountControl(celebrations, options = {}) {
     traitInputs = new Map();
 
     if (names.length === 0) {
-      const empty = document.createElement('p');
+      const empty = ownerDocument.createElement('p');
       empty.className = 'domma-celebrate-panel-empty';
       empty.textContent = celebrations.getState().theme
         ? 'This theme has no individual settings.'
@@ -134,26 +134,26 @@ export function mountControl(celebrations, options = {}) {
       return;
     }
 
-    const heading = document.createElement('p');
+    const heading = ownerDocument.createElement('p');
     heading.className = 'domma-celebrate-panel-title';
     heading.textContent = 'What appears';
     panel.appendChild(heading);
 
-    const list = document.createElement('div');
+    const list = ownerDocument.createElement('div');
     list.className = 'domma-celebrate-panel-list';
 
     for (const name of names) {
       const trait = traits[name];
-      const row = document.createElement('label');
+      const row = ownerDocument.createElement('label');
       row.className = 'domma-celebrate-trait';
 
-      const input = document.createElement('input');
+      const input = ownerDocument.createElement('input');
       input.type = 'checkbox';
       input.checked = trait.enabled;
       input.dataset.trait = name;
       input.addEventListener('change', onTraitChange);
 
-      const text = document.createElement('span');
+      const text = ownerDocument.createElement('span');
       text.textContent = trait.label;
 
       row.append(input, text);
@@ -286,8 +286,8 @@ export function mountControl(celebrations, options = {}) {
 }
 
 /** @private */
-function button(className, label, icon) {
-  const element = document.createElement('button');
+function button(className, label, icon, ownerDocument = document) {
+  const element = ownerDocument.createElement('button');
   element.type = 'button';
   element.className = className;
   element.setAttribute('aria-label', label);
