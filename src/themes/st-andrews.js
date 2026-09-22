@@ -11,66 +11,7 @@
  * - Blue and white color scheme with purple thistles
  */
 
-let tartanPatternCanvas;
-
-function getTartanPatternCanvas() {
-  if (tartanPatternCanvas) return tartanPatternCanvas;
-
-  const patternSize = 120;
-  tartanPatternCanvas = document.createElement('canvas');
-  tartanPatternCanvas.width = patternSize;
-  tartanPatternCanvas.height = patternSize;
-  const pCtx = tartanPatternCanvas.getContext('2d');
-
-  const NAVY = '#1a237e';
-  const RED = '#c62828';
-  const FOREST = '#1b5e20';
-  const YELLOW = '#f9a825';
-  const WHITE = '#ffffff';
-  const BLACK = '#000000';
-  const stripeSequence = [
-    [4, RED], [2, BLACK], [2, RED], [2, BLACK], [4, RED],
-    [8, NAVY], [2, BLACK], [2, NAVY], [2, BLACK], [8, NAVY],
-    [2, FOREST], [2, YELLOW], [2, FOREST],
-    [8, NAVY], [2, BLACK], [2, NAVY], [2, BLACK], [8, NAVY],
-    [4, RED], [2, BLACK], [2, RED], [2, BLACK], [4, RED]
-  ];
-
-  let ypos = 0;
-  for (let i = 0; i < 2; i++) {
-    for (const [width, color] of stripeSequence) {
-      pCtx.fillStyle = color;
-      pCtx.fillRect(0, ypos, patternSize, width);
-      ypos += width;
-    }
-  }
-
-  pCtx.globalCompositeOperation = 'multiply';
-  pCtx.globalAlpha = 0.8;
-  let xpos = 0;
-  for (let i = 0; i < 2; i++) {
-    for (const [width, color] of stripeSequence) {
-      pCtx.fillStyle = color;
-      pCtx.fillRect(xpos, 0, width, patternSize);
-      xpos += width;
-    }
-  }
-
-  pCtx.globalCompositeOperation = 'lighten';
-  pCtx.globalAlpha = 0.15;
-  xpos = 0;
-  for (let i = 0; i < 2; i++) {
-    for (const [width, color] of stripeSequence) {
-      if (color === YELLOW || color === WHITE) {
-        pCtx.fillStyle = WHITE;
-        pCtx.fillRect(xpos, 0, width, patternSize);
-      }
-      xpos += width;
-    }
-  }
-
-  return tartanPatternCanvas;
-}
+const tartanPatternCanvases = new WeakMap();
 
 export default {
   name: 'st-andrews',
@@ -993,7 +934,78 @@ export default {
     ctx.globalAlpha = particle.opacity;
     ctx.translate(x, y);
 
-    const pattern = ctx.createPattern(getTartanPatternCanvas(), 'repeat');
+    // Create authentic tartan weave pattern
+    const patternSize = 120; // Smaller repeating unit
+    const patternDocument = ctx.canvas?.ownerDocument || document;
+    let patternCanvas = tartanPatternCanvases.get(patternDocument);
+    if (!patternCanvas) {
+      patternCanvas = patternDocument.createElement('canvas');
+      patternCanvas.width = patternSize;
+      patternCanvas.height = patternSize;
+      const pCtx = patternCanvas.getContext('2d');
+
+    // Royal Stewart tartan colors
+    const NAVY = '#1a237e';
+    const RED = '#c62828';
+    const FOREST = '#1b5e20';
+    const YELLOW = '#f9a825';
+    const WHITE = '#ffffff';
+    const BLACK = '#000000';
+
+    // Tartan stripe sequence (width, color) - authentic Royal Stewart pattern
+    const stripeSequence = [
+      [4, RED], [2, BLACK], [2, RED], [2, BLACK], [4, RED],
+      [8, NAVY], [2, BLACK], [2, NAVY], [2, BLACK], [8, NAVY],
+      [2, FOREST], [2, YELLOW], [2, FOREST],
+      [8, NAVY], [2, BLACK], [2, NAVY], [2, BLACK], [8, NAVY],
+      [4, RED], [2, BLACK], [2, RED], [2, BLACK], [4, RED]
+    ];
+
+    // Draw horizontal stripes
+    let ypos = 0;
+    for (let i = 0; i < 2; i++) { // Repeat pattern twice
+      for (const [width, color] of stripeSequence) {
+        pCtx.fillStyle = color;
+        pCtx.fillRect(0, ypos, patternSize, width);
+        ypos += width;
+      }
+    }
+
+    // Draw vertical stripes with blending (creates the weave effect)
+    pCtx.globalCompositeOperation = 'multiply';
+    pCtx.globalAlpha = 0.8;
+
+    let xpos = 0;
+    for (let i = 0; i < 2; i++) { // Repeat pattern twice
+      for (const [width, color] of stripeSequence) {
+        pCtx.fillStyle = color;
+        pCtx.fillRect(xpos, 0, width, patternSize);
+        xpos += width;
+      }
+    }
+
+    // Add white highlights (creates tartan shine)
+    pCtx.globalCompositeOperation = 'lighten';
+    pCtx.globalAlpha = 0.15;
+    xpos = 0;
+    for (let i = 0; i < 2; i++) {
+      for (const [width, color] of stripeSequence) {
+        if (color === YELLOW || color === WHITE) {
+          pCtx.fillStyle = WHITE;
+          pCtx.fillRect(xpos, 0, width, patternSize);
+        }
+        xpos += width;
+      }
+    }
+
+    // Reset composite operation
+    pCtx.globalCompositeOperation = 'source-over';
+    pCtx.globalAlpha = 1;
+      tartanPatternCanvases.set(patternDocument, patternCanvas);
+    }
+
+    // Draw the tartan pattern (tiled)
+    const pattern = ctx.createPattern(patternCanvas, 'repeat');
     ctx.fillStyle = pattern;
     ctx.fillRect(-size / 2, -size / 2, size, size);
 

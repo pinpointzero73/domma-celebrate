@@ -91,7 +91,7 @@ export class Celebrations {
     this._animate = this._animate.bind(this);
   }
 
-  // ── Date and theme lookup, as statics so a page can ask before constructing ─
+  // --- Date and theme lookup, as statics so a page can ask before constructing ---
 
   static getThemes() {
     return getThemes();
@@ -109,7 +109,7 @@ export class Celebrations {
     return isDateInRange(start, end, date);
   }
 
-  // ── Lifecycle ──────────────────────────────────────────────────────────────
+  // --- Lifecycle ---
 
   /**
    * Resolve the theme, build the canvas, seed the particles.
@@ -247,7 +247,7 @@ export class Celebrations {
     this._log('destroyed');
   }
 
-  // ── Configuration ──────────────────────────────────────────────────────────
+  // --- Configuration ---
 
   /**
    * Change how much is on screen.
@@ -383,7 +383,7 @@ export class Celebrations {
     };
   }
 
-  // ── Events ─────────────────────────────────────────────────────────────────
+  // --- Events ---
 
   /**
    * Subscribe to 'init', 'stateChange', 'themeChange', 'intensityChange' or
@@ -405,7 +405,7 @@ export class Celebrations {
     this._listeners[event] = this._listeners[event].filter(fn => fn !== handler);
   }
 
-  // ── Particles ──────────────────────────────────────────────────────────────
+  // --- Particles ---
 
   /**
    * Rebuild every particle and decoration from the current theme, intensity and
@@ -450,7 +450,7 @@ export class Celebrations {
     this._log(`${this.particles.length}/${this.targetCount} particles, ${this.specialParticles.length} decorations`);
   }
 
-  // ── Internals ──────────────────────────────────────────────────────────────
+  // --- Internals ---
 
   /**
    * Resolve a theme name (handling 'auto') and load its module.
