@@ -4,8 +4,7 @@
 # exact workflow, and npm trusts it because the package is configured with a
 # Trusted Publisher pointing back here. That replaces the granular-token path,
 # which npm has withdrawn for direct publishing, and it is the route this
-# repository uses - publishing by hand needs an interactive login and would
-# hit EOTP on any account with 2FA on writes.
+# repository uses - so a release never depends on anyone's local npm login.
 #
 # Mirrors domma/.github/workflows/publish.yml,
 # domma-reactive/.github/workflows/publish.yml and
