@@ -3,26 +3,36 @@
 # No tokens, no one-time codes: GitHub mints a short-lived OIDC token for this
 # exact workflow, and npm trusts it because the package is configured with a
 # Trusted Publisher pointing back here. That replaces the granular-token path,
-# which npm has withdrawn for direct publishing, and it is the only route that
-# works here - this account has no authenticator app, so a local
-# `npm publish` dies on EOTP every time.
+# which npm has withdrawn for direct publishing, and it is the route this
+# repository uses - publishing by hand needs an interactive login and would
+# hit EOTP on any account with 2FA on writes.
 #
 # Mirrors domma/.github/workflows/publish.yml,
 # domma-reactive/.github/workflows/publish.yml and
 # domma-cms/.github/workflows/publish.yml; keep the four in step.
 #
-# FIRST PUBLISH: a Trusted Publisher can only be set on a package that already
-# exists, so version 1.0.0 has to go out on the automation-token route - add an
-# NPM_TOKEN secret to this repository, publish, then configure the Trusted
-# Publisher below and delete the secret. Every release after that is OIDC.
+# The first publish is done. 1.0.0 went out by hand on 2026-09-22, because a
+# Trusted Publisher cannot be set on a package that does not exist yet and so
+# the very first release can never be the OIDC one. The Trusted Publisher was
+# configured straight after, which makes 1.0.1 onward an ordinary tag-and-go:
+# push a v* tag and this workflow does the rest. Nothing to set up per release.
 #
-# npm side, once the package exists: npmjs.com -> domma-celebrate -> Settings
+# Worth knowing if a run ever fails with ENEEDAUTH: that is the runner having
+# no credentials of its own, not your local `npm whoami`. A local login is
+# invisible here. It means the Trusted Publisher is missing or does not match
+# the five values below exactly.
+#
+# npm side, configured 2026-09-22: npmjs.com -> domma-celebrate -> Settings
 #   -> Trusted Publisher
 #   Provider: GitHub Actions
 #   Organization or user: pinpointzero73
 #   Repository:           domma-celebrate
 #   Workflow filename:    publish.yml
 #   Environment:          (leave empty)
+#
+# NPM_TOKEN is consequently unset, and should stay that way: the Publish step
+# below prefers a token when one exists, so adding one silently takes the
+# OIDC path out of service.
 name: Publish to npm
 
 on:
