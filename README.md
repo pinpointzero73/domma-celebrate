@@ -191,3 +191,7 @@ chunks emitted) and that the UMD build really inlines with no unresolved chunk i
 ## Licence
 
 MPL-2.0. See [LICENSE](./LICENSE).
+
+### Christmas character previews
+
+Run `npm run demo`, then open `/demo/vehicles.html` for the sleigh and express or `/demo/festive.html` for trees, wreaths, robins and elves. The festive preview has buttons to play the two optional elf scenes; both are off by default in the package.

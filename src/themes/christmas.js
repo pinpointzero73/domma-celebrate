@@ -17,6 +17,8 @@
 
 import { createParticle } from './../core/particles.js';
 import { drawSleigh, drawTrain } from './christmas-vehicles.js';
+import { drawTree, drawWreath, drawRobin, drawElf, TREE_GIFTS } from './christmas-festive.js';
+import { spawnElfAntic, updateElfAntic } from './christmas-antics.js';
 
 export default {
   name: 'christmas',
@@ -29,6 +31,8 @@ export default {
       count: 50,
       speedRange: [0.5, 1.5],
       sizeRange: [1, 3],
+      peeingElfChance: 0.0007,
+      thievingElfChance: 0.001,
       trees: 3,
       wreaths: 2,
       northStars: 1,
@@ -38,6 +42,8 @@ export default {
       count: 150,
       speedRange: [0.8, 2.5],
       sizeRange: [1, 4],
+      peeingElfChance: 0.0007,
+      thievingElfChance: 0.001,
       trees: 6,
       wreaths: 3,
       northStars: 1,
@@ -47,6 +53,8 @@ export default {
       count: 300,
       speedRange: [1.0, 3.5],
       sizeRange: [1, 5],
+      peeingElfChance: 0.0007,
+      thievingElfChance: 0.001,
       trees: 10,
       wreaths: 4,
       northStars: 1,
@@ -55,7 +63,7 @@ export default {
   },
 
   particles: ['snowflake'],
-  decorations: ['tree', 'wreath', 'sleigh', 'robin', 'train', 'elf', 'firework', 'north-star', 'snowman'],
+  decorations: ['tree', 'wreath', 'sleigh', 'robin', 'train', 'elf', 'firework', 'north-star', 'snowman', 'peeing-elf', 'thieving-elf'],
 
   /**
    * Trait manifest - what a host is allowed to turn on, off or thin out.
@@ -79,6 +87,8 @@ export default {
     robin: { label: 'Robins', types: ['robin'] },
     train: { label: 'Steam train', types: ['train'] },
     elf: { label: 'Elves', types: ['elf'] },
+    peeingElf: { label: 'Peeing elf', types: ['peeing-elf'], chance: 'peeingElfChance', enabled: false },
+    thievingElf: { label: 'Thieving elf', types: ['thieving-elf'], chance: 'thievingElfChance', enabled: false },
     firework: { label: 'Fireworks', types: ['firework', 'spark'] }
   },
   colors: {
@@ -110,6 +120,7 @@ export default {
   createTree(canvasWidth, canvasHeight, options = {}) {
     return {
       type: 'tree',
+      gifts: TREE_GIFTS.map(gift => ({ ...gift, stolen: false, reserved: false })),
       x: options.x !== undefined ? options.x : Math.random() * canvasWidth,
       y: options.y !== undefined ? options.y : Math.random() * canvasHeight,
       vx: 0,
@@ -241,7 +252,9 @@ export default {
   /**
    * Spawn special particles with configurable probability
    */
-  spawnSpecialParticle(specialParticles, canvasWidth, canvasHeight) {
+  spawnSpecialParticle(specialParticles, canvasWidth, canvasHeight, config = {}) {
+    const antic = spawnElfAntic(specialParticles, canvasWidth, canvasHeight, config);
+    if (antic) return antic;
     const choice = Math.random();
 
     // Santa's sleigh (0.05% chance, max 1)
@@ -382,6 +395,10 @@ export default {
       }
 
       switch (particle.type) {
+        case 'peeing-elf':
+        case 'thieving-elf':
+          updateElfAntic(particle, deltaTime, canvasWidth);
+          break;
         case 'sleigh':
           // Sleigh movement (arc motion is handled in drawSleigh based on particle.x)
           // Just need to ensure it deactivates when off-screen
@@ -600,225 +617,12 @@ export default {
   /**
    * Draw Christmas tree with lights, baubles, tinsel, and star
    */
-  drawTree(ctx, particle, twinkleTime) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Trunk
-    ctx.fillStyle = '#654321';
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.2, size * 0.8);
-    ctx.lineTo(size * 0.2, size * 0.8);
-    ctx.lineTo(size * 0.15, size * 1.3);
-    ctx.lineTo(-size * 0.15, size * 1.3);
-    ctx.closePath();
-    ctx.fill();
-
-    // Trunk texture
-    ctx.strokeStyle = '#4a2f1a';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i++) {
-      ctx.beginPath();
-      ctx.moveTo(-size * 0.15, size * 0.9 + i * size * 0.12);
-      ctx.lineTo(size * 0.15, size * 0.9 + i * size * 0.12);
-      ctx.stroke();
-    }
-
-    // Tree layers (3 triangular layers)
-    ctx.fillStyle = '#228B22';
-    for (let i = 0; i < 3; i++) {
-      const layerY = i * size * 0.4;
-      const layerSize = size * (1.2 - i * 0.2);
-      ctx.beginPath();
-      ctx.moveTo(0, -layerY);
-      ctx.lineTo(-layerSize, size * 0.3 - layerY);
-      ctx.lineTo(layerSize, size * 0.3 - layerY);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Tinsel
-    ctx.strokeStyle = '#C0C0C0';
-    ctx.lineWidth = 1.5;
-    for (let layer = 0; layer < 3; layer++) {
-      const layerY = layer * size * 0.4;
-      const layerSize = size * (1.2 - layer * 0.2);
-      ctx.beginPath();
-      for (let i = 0; i <= 6; i++) {
-        const xPos = -layerSize + (i / 6) * layerSize * 2;
-        const yPos = size * 0.15 - layerY + (i % 2 === 0 ? -size * 0.1 : 0);
-        if (i === 0) ctx.moveTo(xPos, yPos);
-        else ctx.lineTo(xPos, yPos);
-      }
-      ctx.stroke();
-    }
-
-    // Baubles
-    const baubleColors = ['#ff0000', '#0000ff', '#ffd700', '#ff69b4', '#00ff00'];
-    for (let i = 0; i < 8; i++) {
-      const layer = Math.floor(i / 3);
-      const layerY = layer * size * 0.4;
-      const layerSize = size * (1.2 - layer * 0.2) * 0.7;
-      const angle = (i % 3) * (Math.PI * 2 / 3) + layer * 0.5;
-      const baubleX = Math.cos(angle) * layerSize;
-      const baubleY = size * 0.1 - layerY;
-
-      ctx.fillStyle = baubleColors[i % baubleColors.length];
-      ctx.beginPath();
-      ctx.arc(baubleX, baubleY, size * 0.12, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Highlight
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.beginPath();
-      ctx.arc(baubleX - size * 0.04, baubleY - size * 0.04, size * 0.04, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Twinkling lights
-    const lightColors = ['#ffff00', '#ff0000', '#00ff00', '#0000ff', '#ffffff'];
-    for (let i = 0; i < 12; i++) {
-      const layer = Math.floor(i / 4);
-      const layerY = layer * size * 0.4;
-      const layerSize = size * (1.2 - layer * 0.2) * 0.85;
-      const angle = (i % 4) * (Math.PI * 2 / 4) + layer * 0.3;
-      const lightX = Math.cos(angle) * layerSize;
-      const lightY = size * 0.2 - layerY;
-
-      // Twinkle effect
-      const twinkleIntensity = (Math.sin((twinkleTime * 0.003) + (i * 0.5)) + 1) * 0.5;
-      const glowOpacity = 0.3 + (twinkleIntensity * 0.7);
-
-      // Glow
-      const gradient = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, size * 0.15);
-      const color = lightColors[i % lightColors.length];
-      gradient.addColorStop(0, color);
-      gradient.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.globalAlpha = glowOpacity;
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(lightX, lightY, size * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Light bulb
-      ctx.globalAlpha = 0.5 + (twinkleIntensity * 0.5);
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(lightX, lightY, size * 0.08, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
-    }
-
-    // Gold star with glow
-    const starSize = size * 0.35;
-    const starY = -size * 1.4;
-
-    // Star glow
-    const starGradient = ctx.createRadialGradient(0, starY, 0, 0, starY, starSize * 2);
-    starGradient.addColorStop(0, 'rgba(255,223,0,1)');
-    starGradient.addColorStop(0.3, 'rgba(255,215,0,0.7)');
-    starGradient.addColorStop(0.6, 'rgba(255,215,0,0.3)');
-    starGradient.addColorStop(1, 'rgba(255,215,0,0)');
-    ctx.fillStyle = starGradient;
-    ctx.beginPath();
-    ctx.arc(0, starY, starSize * 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Star
-    ctx.fillStyle = '#FFD700';
-    ctx.strokeStyle = '#FFA500';
-    ctx.lineWidth = 2;
-    ctx.save();
-    ctx.translate(0, starY);
-    ctx.beginPath();
-    for (let i = 0; i < 10; i++) {
-      const angle = (Math.PI * 2 * i) / 10 - Math.PI / 2;
-      const radius = i % 2 === 0 ? starSize : starSize * 0.4;
-      const pointX = Math.cos(angle) * radius;
-      const pointY = Math.sin(angle) * radius;
-      if (i === 0) ctx.moveTo(pointX, pointY);
-      else ctx.lineTo(pointX, pointY);
-    }
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.restore();
-  },
+  drawTree,
 
   /**
    * Draw Christmas wreath with bow and lights
    */
-  drawWreath(ctx, particle, twinkleTime) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Wreath body (pre-generated irregular shape)
-    particle.shape.forEach(segment => {
-      ctx.lineWidth = size * segment.thickness;
-      ctx.strokeStyle = segment.color;
-      ctx.beginPath();
-      const startAngle = segment.angle - (Math.PI / particle.shape.length);
-      const endAngle = segment.angle + (Math.PI / particle.shape.length);
-      ctx.arc(0, 0, size * segment.radius, startAngle, endAngle);
-      ctx.stroke();
-    });
-
-    // Twinkling lights on wreath
-    const lightColors = ['#ff0000', '#ffff00', '#0000ff'];
-    for (let i = 0; i < 4; i++) {
-      const angle = (i / 4) * Math.PI * 2 + particle.rotation;
-      const lightX = Math.cos(angle) * size;
-      const lightY = Math.sin(angle) * size;
-      const twinkleIntensity = (Math.sin((twinkleTime * 0.002) + (i * 0.7)) + 1) / 2;
-
-      if (twinkleIntensity > 0.5) {
-        const glowOpacity = (twinkleIntensity - 0.5) * 2;
-        const color = lightColors[i % lightColors.length];
-        const gradient = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, size * 0.15);
-        gradient.addColorStop(0, color);
-        gradient.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.globalAlpha = glowOpacity;
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-      ctx.arc(lightX, lightY, size * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      }
-    }
-
-    // Red bow at top
-    ctx.fillStyle = '#c00';
-    const bowY = -size;
-
-    // Left loop
-    ctx.beginPath();
-    ctx.ellipse(-size * 0.3, bowY, size * 0.3, size * 0.4, -0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Right loop
-    ctx.beginPath();
-    ctx.ellipse(size * 0.3, bowY, size * 0.3, size * 0.4, 0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Bow center knot
-    ctx.beginPath();
-    ctx.arc(0, bowY, size * 0.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  },
+  drawWreath,
 
   /**
    * Draw North Star (Star of Bethlehem) - Silver 4-pointed star, non-spinning
@@ -902,70 +706,9 @@ export default {
   /**
    * Draw walking elf
    */
-  drawElf(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-    const dir = particle.vx > 0 ? 1 : -1;
-
-    ctx.save();
-    ctx.translate(x, y);
-
-    const legAngle = Math.sin(particle.time * 0.05) * (Math.PI / 3);
-
-    // Legs
-    ctx.fillStyle = '#004d00';
-    ctx.fillRect(dir * -size * 0.1, size * 0.2, size * 0.2, size * 0.5 + (Math.sin(legAngle + Math.PI) * size * 0.1));
-    ctx.fillStyle = '#4a2c2a';
-    ctx.beginPath();
-    ctx.ellipse(dir * 0, size * 0.7 + (Math.sin(legAngle + Math.PI) * size * 0.1), size * 0.3, size * 0.15, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#006400';
-    ctx.fillRect(dir * size * 0.1, size * 0.2, size * 0.2, size * 0.5 + (Math.sin(legAngle) * size * 0.1));
-    ctx.fillStyle = '#5d3836';
-    ctx.beginPath();
-    ctx.ellipse(dir * size * 0.2, size * 0.7 + (Math.sin(legAngle) * size * 0.1), size * 0.3, size * 0.15, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Body (green tunic)
-    ctx.fillStyle = '#008000';
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 0.5);
-    ctx.lineTo(dir * size * 0.4, size * 0.3);
-    ctx.lineTo(dir * -size * 0.4, size * 0.3);
-    ctx.closePath();
-    ctx.fill();
-
-    // Head
-    ctx.fillStyle = '#FFD7BA';
-    ctx.beginPath();
-    ctx.arc(0, -size * 0.6, size * 0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Red elf hat
-    ctx.fillStyle = '#c00';
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 0.7);
-    ctx.lineTo(dir * size * 0.35, -size * 0.6);
-    ctx.lineTo(dir * -size * 0.35, -size * 0.6);
-    ctx.closePath();
-    ctx.fill();
-
-    // Hat tip
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 0.7);
-    ctx.quadraticCurveTo(dir * size * 0.2, -size * 1.1, dir * size * 0.4, -size * 1.3);
-    ctx.stroke();
-
-    // Bell
-    ctx.fillStyle = '#ffff00';
-    ctx.beginPath();
-    ctx.arc(dir * size * 0.4, -size * 1.3, size * 0.15, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  },
+  drawElf,
+  drawPeeingElf: drawElf,
+  drawThievingElf: drawElf,
 
   /**
    * Draw Christmas steam train
@@ -1009,185 +752,7 @@ export default {
   /**
    * Draw robin (British red-breasted robin with Santa hat)
    */
-  drawRobin(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-    const dir = particle.vx >= 0 ? 1 : -1;
-
-    // Determine animation state
-    const isFlying = particle.state === 'flying_in' || particle.state === 'flying_away';
-    const isSitting = particle.state === 'sitting';
-
-    // Initialize transition tracking if needed
-    if (particle.wingIntensity === undefined) {
-      particle.wingIntensity = isFlying ? 1 : 0;
-    }
-
-    // Smooth exponential transition between flying and sitting
-    const targetIntensity = isFlying ? 1 : 0;
-    const transitionSpeed = 0.02; // Smooth transition
-    particle.wingIntensity += (targetIntensity - particle.wingIntensity) * transitionSpeed;
-
-    // Wing flapping with sinusoidal easing for smooth, natural motion
-    let wingAngle = 0;
-    if (particle.wingIntensity > 0.01) {
-      // Natural wing flap frequency (about 2-3 flaps per second)
-      const flapFrequency = 0.012; // Frequency in radians per millisecond
-
-      // Get base sine wave (-1 to 1)
-      const rawSine = Math.sin(time * flapFrequency + particle.waveOffset);
-
-      // Apply ease-in-out using sine for smooth acceleration/deceleration
-      // This creates the characteristic "flap" motion: slow at extremes, fast in middle
-      const easedSine = Math.sin(rawSine * Math.PI / 2);
-
-      // Amplitude: wings move from folded (down) to extended (up)
-      const flapAmplitude = Math.PI / 6; // 30° range
-
-      // Apply intensity for smooth transitions
-      wingAngle = easedSine * flapAmplitude * particle.wingIntensity;
-    }
-
-    ctx.save();
-    ctx.translate(x, y);
-    if (dir === -1) {
-      ctx.scale(-1, 1);
-    }
-
-    // Body (red breast)
-    ctx.fillStyle = '#A52A2A'; // Brown back
-    ctx.beginPath();
-    ctx.ellipse(0, 0, size * 0.6, size * 0.8, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Red breast
-    ctx.fillStyle = '#DC143C'; // Crimson red
-    ctx.beginPath();
-    ctx.ellipse(size * 0.15, size * 0.1, size * 0.45, size * 0.6, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Tail (behind wings) - very subtle
-    ctx.fillStyle = '#654321';
-    ctx.strokeStyle = '#4a2c2a';
-    ctx.lineWidth = 0.5;
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.5, 0);
-    ctx.quadraticCurveTo(-size * 0.7, -size * 0.08, -size * 0.85, 0);
-    ctx.quadraticCurveTo(-size * 0.7, size * 0.08, -size * 0.5, 0);
-    ctx.fill();
-    ctx.stroke();
-
-    // Left wing (back wing)
-    ctx.fillStyle = '#8B4513';
-    ctx.strokeStyle = '#654321';
-    ctx.lineWidth = 1;
-    ctx.save();
-    ctx.translate(-size * 0.3, -size * 0.1);
-    ctx.rotate(wingAngle);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, size * 0.45, size * 0.25, -Math.PI / 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-
-    // Right wing (front wing)
-    ctx.fillStyle = '#A0692F';
-    ctx.strokeStyle = '#654321';
-    ctx.lineWidth = 1;
-    ctx.save();
-    ctx.translate(-size * 0.3, size * 0.1);
-    ctx.rotate(-wingAngle);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, size * 0.45, size * 0.25, Math.PI / 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-
-    // Head - simple, minimal animation
-    ctx.fillStyle = '#A52A2A';
-    ctx.beginPath();
-    ctx.arc(size * 0.5, -size * 0.2, size * 0.35, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Beak
-    ctx.fillStyle = '#FFD700';
-    ctx.strokeStyle = '#DAA520';
-    ctx.lineWidth = 0.5;
-    ctx.beginPath();
-    ctx.moveTo(size * 0.75, -size * 0.2);
-    ctx.lineTo(size * 0.95, -size * 0.15);
-    ctx.lineTo(size * 0.75, -size * 0.1);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Eye
-    ctx.fillStyle = '#000000';
-    ctx.beginPath();
-    ctx.arc(size * 0.6, -size * 0.25, size * 0.08, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Eye highlight
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.arc(size * 0.62, -size * 0.27, size * 0.03, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Legs (when sitting) - simple and clean
-    if (isSitting) {
-      ctx.strokeStyle = '#8B4513';
-      ctx.lineWidth = size * 0.08;
-      ctx.lineCap = 'round';
-
-      // Right leg
-      ctx.beginPath();
-      ctx.moveTo(size * 0.1, size * 0.7);
-      ctx.lineTo(size * 0.1, size * 1.0);
-      ctx.stroke();
-
-      // Left leg
-      ctx.beginPath();
-      ctx.moveTo(-size * 0.1, size * 0.7);
-      ctx.lineTo(-size * 0.1, size * 1.0);
-      ctx.stroke();
-
-      // Simple feet
-      ctx.lineWidth = size * 0.06;
-      ctx.beginPath();
-      ctx.moveTo(size * 0.1, size * 1.0);
-      ctx.lineTo(size * 0.25, size * 1.0);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-size * 0.1, size * 1.0);
-      ctx.lineTo(-size * 0.25, size * 1.0);
-      ctx.stroke();
-    }
-
-    // Santa hat
-    const hatX = size * 0.5;
-    const hatY = -size * 0.55;
-
-    // Hat body
-    ctx.fillStyle = '#c00';
-    ctx.beginPath();
-    ctx.moveTo(hatX - size * 0.3, hatY);
-    ctx.lineTo(hatX + size * 0.25, hatY);
-    ctx.lineTo(hatX + size * 0.1, hatY - size * 0.5);
-    ctx.closePath();
-    ctx.fill();
-
-    // Hat brim
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(hatX - size * 0.32, hatY, size * 0.58, size * 0.1);
-
-    // Hat pompom
-    ctx.beginPath();
-    ctx.arc(hatX + size * 0.1, hatY - size * 0.5, size * 0.1, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  },
+  drawRobin,
 
   /**
    * Draw snowman with top hat, scarf, and coal features

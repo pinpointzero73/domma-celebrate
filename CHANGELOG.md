@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 — 2026-09-30
+
+- Redraw Christmas trees with curved evergreen boughs, warm lights, baubles, a gold star and wrapped presents.
+- Redraw wreaths with individual evergreen sprigs, berries, warm lights and a satin bow; robins with an orange breast and feathered wings; and elves with pointed ears, folded hats, striped stockings and curled shoes.
+- Add two separate opt-in traits, `peeingElf` and `thievingElf`, both off by default. The thief takes a real present from a visible tree and runs away carrying it; the peeing elf pauses for a clothed rear-view gag before leaving.
+- Support `enabled: false` in trait manifests, with explicit host settings taking precedence.
+- Add a live decoration and elf-scene preview with pause and reset controls.
+
 ## 1.0.1 — 2026-09-30
 
 - Redraw Santa’s sleigh with a lacquered red body, brass runners, gifts, and five distinct reindeer with articulated galloping legs.

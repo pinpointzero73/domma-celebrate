@@ -42,16 +42,18 @@ export function resolveTraits(themeModule, settings = {}) {
 
   for (const [name, definition] of Object.entries(manifest)) {
     const setting = settings[name];
-    let enabled = true;
+    let enabled = definition.enabled !== false;
     let density = 1;
 
-    if (setting === false) {
+    if (setting === true) {
+      enabled = true;
+    } else if (setting === false) {
       enabled = false;
     } else if (typeof setting === 'number') {
       density = Math.max(0, setting);
       enabled = density > 0;
     } else if (setting && typeof setting === 'object') {
-      if (setting.enabled === false) enabled = false;
+      if (typeof setting.enabled === 'boolean') enabled = setting.enabled;
       if (typeof setting.density === 'number') {
         density = Math.max(0, setting.density);
         if (density === 0) enabled = false;
