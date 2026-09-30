@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Redraw Halloween pumpkins, jack-o-lanterns, ghosts, bats, scarecrows and the haunted house with shaded illustration, candlelight and fabric details.
+- Redraw Valentine’s butterflies with tapered wings, veins, markings and antennae.
+- Add a seasonal illustration preview gallery with animation controls.
+
 ## 1.1.1 — 2026-09-30
 
 - Redraw the snowman with softly shaded snow, twig arms, coal features, a carved carrot, a striped knitted scarf and a holly-trimmed felt top hat.

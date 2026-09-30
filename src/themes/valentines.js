@@ -1,3 +1,5 @@
+import {drawIllustratedButterfly} from './butterfly-drawing.js';
+
 /**
  * Valentine's Day Theme for Domma Celebrations
  *
@@ -987,147 +989,20 @@ export default {
   /**
    * Draw butterfly
    */
-  drawButterfly(ctx, particle, time) {
-    const x = particle.x + Math.sin(time * particle.waveFrequency + particle.waveOffset) * particle.waveAmplitude;
-    const y = particle.baseY + Math.cos(time * particle.waveFrequency * 0.7 + particle.waveOffset) * (particle.waveAmplitude * 0.6);
-    const size = particle.size;
-    const dir = particle.vx > 0 ? 1 : -1;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    if (dir === -1) {
-      ctx.scale(-1, 1);
-    }
-
-    // Wing flap animation
-    const wingAngle = Math.sin(time * 0.015 + particle.wingPhase) * (Math.PI / 6);
-
-    // Color palette
-    const colors = {
-      pink: { main: '#ffb3d9', accent: '#ff69b4', outline: '#ff1493' },
-      purple: { main: '#dda0dd', accent: '#ba55d3', outline: '#9932cc' }
-    };
-    const col = colors[particle.color];
-
-    // Left wings (back)
-    ctx.save();
-    ctx.translate(-size * 0.15, 0);
-    ctx.rotate(-wingAngle);
-
-    // Upper left wing
-    ctx.fillStyle = col.main;
-    ctx.strokeStyle = col.outline;
-    ctx.lineWidth = size * 0.03;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(
-      -size * 0.8, -size * 0.6,
-      -size * 0.5, -size * 1.2,
-      0, -size * 0.5
-    );
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Lower left wing
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(
-      -size * 0.7, size * 0.4,
-      -size * 0.4, size * 0.9,
-      0, size * 0.4
-    );
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Wing patterns (spots)
-    ctx.fillStyle = col.accent;
-    ctx.beginPath();
-    ctx.arc(-size * 0.4, -size * 0.5, size * 0.12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(-size * 0.35, size * 0.35, size * 0.1, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-
-    // Right wings (front)
-    ctx.save();
-    ctx.translate(size * 0.15, 0);
-    ctx.rotate(wingAngle);
-
-    // Upper right wing
-    ctx.fillStyle = col.main;
-    ctx.strokeStyle = col.outline;
-    ctx.lineWidth = size * 0.03;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(
-      size * 0.8, -size * 0.6,
-      size * 0.5, -size * 1.2,
-      0, -size * 0.5
-    );
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Lower right wing
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(
-      size * 0.7, size * 0.4,
-      size * 0.4, size * 0.9,
-      0, size * 0.4
-    );
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Wing patterns
-    ctx.fillStyle = col.accent;
-    ctx.beginPath();
-    ctx.arc(size * 0.4, -size * 0.5, size * 0.12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(size * 0.35, size * 0.35, size * 0.1, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-
-    // Body
-    ctx.fillStyle = '#4a4a4a';
-    ctx.fillRect(-size * 0.05, -size * 0.5, size * 0.1, size * 0.9);
-
-    // Head
-    ctx.fillStyle = '#2a2a2a';
-    ctx.beginPath();
-    ctx.arc(0, -size * 0.55, size * 0.12, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Antennae
-    ctx.strokeStyle = '#2a2a2a';
-    ctx.lineWidth = size * 0.02;
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 0.6);
-    ctx.quadraticCurveTo(-size * 0.15, -size * 0.8, -size * 0.2, -size * 0.75);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 0.6);
-    ctx.quadraticCurveTo(size * 0.15, -size * 0.8, size * 0.2, -size * 0.75);
-    ctx.stroke();
-
-    // Antennae tips
-    ctx.fillStyle = col.outline;
-    ctx.beginPath();
-    ctx.arc(-size * 0.2, -size * 0.75, size * 0.04, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(size * 0.2, -size * 0.75, size * 0.04, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
+  drawButterfly(ctx, particle, time = 0) {
+    const phase = time * (particle.waveFrequency || 0) + (particle.waveOffset || 0);
+    const amplitude = particle.waveAmplitude || 0;
+    const purple = particle.color === 'purple';
+    drawIllustratedButterfly(ctx, {
+      x: particle.x + Math.sin(phase) * amplitude,
+      y: (particle.baseY ?? particle.y) + Math.cos(time * (particle.waveFrequency || 0) * 0.7 + (particle.waveOffset || 0)) * amplitude * 0.6,
+      size: particle.size * 1.6,
+      heading: -Math.PI / 2,
+      flapPhase: time * 0.01 + (particle.wingPhase || 0),
+      colourUpper: purple ? '#b48aba' : '#d897b3',
+      colourLower: purple ? '#896eaa' : '#bb7798',
+      alpha: particle.opacity ?? 1
+    });
   },
 
   /**
