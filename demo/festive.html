@@ -18,6 +18,8 @@ function start(type){
  const key=type==='peeing-elf'?'peeingElfChance':'thievingElfChance';
  const elf=spawnElfAntic([tree,...antics],1000,340,{[key]:1});
  if(!elf){status.textContent=type==='thieving-elf'?'Already stealing, or no presents left. Reset the presents to try again.':'Already up to mischief.';return}
+ elf.size=25;
+ elf.y=type==='thieving-elf'?tree.y+(elf.gift.y+elf.gift.height)*tree.size-elf.size*1.02:340-elf.size*1.02-8;
  elf.x=40;elf.vx=1;if(type==='peeing-elf')elf.targetX=340;
  antics.push(elf);paused=false;pause.textContent='Pause';status.textContent=type==='peeing-elf'?'Someone needs a quiet corner…':'Keep an eye on those presents…';
 }
@@ -25,7 +27,7 @@ document.getElementById('pee').onclick=()=>start('peeing-elf');document.getEleme
 document.getElementById('reset').onclick=()=>{antics=[];tree.gifts.forEach(g=>{g.stolen=false;g.reserved=false});status.textContent='All presents restored.'};
 const canvases=['tree','wreath','robin','elf','scene'].map(id=>document.getElementById(id));
 function frame(now){const delta=Math.min(50,now-(last||now));last=now;if(!paused){time+=delta;christmas.updateSpecialParticles(antics,delta,1000,340);antics=antics.filter(p=>p.active)}
-for(const c of canvases){const w=c.clientWidth,h=c.id==='scene'?340:300,dpr=devicePixelRatio||1;if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);c.style.height=h+'px'}const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+for(const c of canvases){const w=c.clientWidth,h=c.id==='scene'?Math.round(w/1000*340):300,dpr=devicePixelRatio||1;if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);c.style.height=h+'px'}const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
  if(c.id==='scene'){const fit=w/1000;ctx.save();ctx.scale(fit,fit);christmas.drawTree(ctx,tree,time);for(const p of antics)christmas[p.type==='peeing-elf'?'drawPeeingElf':'drawThievingElf'](ctx,p,time);ctx.restore();continue}
  const p={x:w/2,y:165,size:70,rotation:0,opacity:1,time,vx:1,waveOffset:0,state:Math.floor(time/3000)%2?'flying_in':'sitting'};
  if(c.id==='tree'){p.size=78;p.y=160;christmas.drawTree(ctx,p,time)}
