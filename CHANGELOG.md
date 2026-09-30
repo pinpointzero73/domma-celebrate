@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1 — 2026-09-30
+
+- Redraw Santa’s sleigh with a lacquered red body, brass runners, gifts, and five distinct reindeer with articulated galloping legs.
+- Redraw the Christmas express as a vintage green steam train with brass trim, warm carriage windows, moving wheel spokes and coupling rods, and soft smoke.
+- Add an animated vehicle review page at `demo/vehicles.html`, with pause and direction controls.
+- Guard vehicle drawing against invalid coordinates and preserve canvas transforms between particles.
+
 ## 1.0.0
 
 First release. Extracted from Domma's `public/layouts/js/modules/celebrations/`, where it
