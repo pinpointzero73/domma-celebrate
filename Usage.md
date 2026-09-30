@@ -226,6 +226,20 @@ rather than an error. Trait settings survive a theme change.
 
 ### How it works, and why it matters
 
+Christmas's two mischievous elves are opt-in. Normal walking elves are a separate trait:
+
+```js
+const celebrations = new Celebrations({
+  theme: 'christmas',
+  traits: { peeingElf: true, thievingElf: true }
+});
+await celebrations.init();
+```
+
+The peeing elf walks in, pauses for a clothed rear-view gag, then leaves. The thief needs a visible Christmas tree with an unclaimed present: it runs in, grabs that present (which disappears from the tree), and escapes carrying it. No trees or no presents means no thief. At most one of each scene runs at a time. Reseeding the decorations restores the gifts. Use `setTrait('peeingElf', false)` or `setTrait('thievingElf', false)` to turn either off.
+
+Custom theme manifests may use `enabled: false` to make a trait opt-in; explicit `true`, positive density, or `{ enabled: true }` enables it.
+
 Two mechanisms sit behind a trait, picked per trait by what the theme itself exposes:
 
 - **Config keys.** Where a trait's population comes from an intensity value (`trees: 6`,
@@ -262,6 +276,8 @@ on average; *global* gates the theme's whole-canvas drawing pass.
 | `robin` | Robins | decoration | type filter |
 | `train` | Steam train | decoration | type filter |
 | `elf` | Elves | decoration | type filter |
+| `peeingElf` | Peeing elf (off by default) | decoration | `peeingElfChance` |
+| `thievingElf` | Thieving elf (off by default) | decoration | `thievingElfChance` |
 | `firework` | Fireworks | decoration | type filter |
 
 #### valentines

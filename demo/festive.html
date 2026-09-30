@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Christmas characters — redraw preview</title>
+<style>
+body{margin:0;background:#101520;color:#f5e8d5;font:16px system-ui}main{max-width:1100px;margin:auto;padding:32px 20px}h1{font-size:clamp(26px,4vw,40px);margin-bottom:12px}p{color:#c0c9d3;line-height:1.6}canvas{display:block;width:100%;border-radius:16px;background:linear-gradient(#152338,#0b1322);border:1px solid #394656;margin:20px 0}button{background:#e2bb77;color:#17202c;border:0;padding:12px 18px;border-radius:8px;font:inherit;cursor:pointer;margin:0 8px 10px 0}a{color:#e2bb77}.gallery{display:grid;grid-template-columns:1fr 1fr;gap:24px}h2{font-size:23px}#status{min-height:1.6em}@media(max-width:650px){.gallery{grid-template-columns:1fr}}
+</style>
+<main><h1>Christmas, with a little character.</h1><p>Layered fir trees, evergreen wreaths, warm little robins and properly dressed elves. A matching redraw for the Christmas sleigh and express.</p><button id="pause">Pause</button><div class="gallery"><section><h2>The Christmas tree</h2><canvas id="tree" aria-label="Illustrated fir tree with warm lights and gifts"></canvas></section><section><h2>The wreath</h2><canvas id="wreath" aria-label="Evergreen wreath with berries and a red satin bow"></canvas></section><section><h2>The robin</h2><canvas id="robin" aria-label="Animated robin in a Santa hat"></canvas></section><section><h2>The elf</h2><canvas id="elf" aria-label="Animated walking elf with striped stockings"></canvas></section></div><h2>A little mischief</h2><p>Both naughty elves are <strong>off by default</strong>. Start a scene here to see what happens.</p><button id="pee" aria-pressed="false">Play peeing elf</button><button id="theft" aria-pressed="false">Play thieving elf</button><button id="reset">Reset presents</button><p id="status" aria-live="polite">The presents are safe. For now.</p><canvas id="scene" aria-label="Optional elf scenes around a Christmas tree"></canvas><p><a href="/public/christmas-preview.html">See the sleigh and train</a> · <a href="/santa">Back to Santa Jamie</a></p></main>
+<script type="module">
+import christmas from '../src/themes/christmas.js';
+import {spawnElfAntic} from '../src/themes/christmas-antics.js';
+let paused=matchMedia('(prefers-reduced-motion: reduce)').matches,time=0,last=0;
+const pause=document.getElementById('pause');pause.textContent=paused?'Play':'Pause';pause.onclick=()=>{paused=!paused;pause.textContent=paused?'Play':'Pause'};
+const status=document.getElementById('status');
+let tree=christmas.createTree(1000,340,{x:660,y:235});tree.size=65;tree.opacity=1;
+let antics=[];
+function start(type){
+ const key=type==='peeing-elf'?'peeingElfChance':'thievingElfChance';
+ const elf=spawnElfAntic([tree,...antics],1000,340,{[key]:1});
+ if(!elf){status.textContent=type==='thieving-elf'?'Already stealing, or no presents left. Reset the presents to try again.':'Already up to mischief.';return}
+ elf.x=40;elf.vx=1;if(type==='peeing-elf')elf.targetX=340;
+ antics.push(elf);paused=false;pause.textContent='Pause';status.textContent=type==='peeing-elf'?'Someone needs a quiet corner…':'Keep an eye on those presents…';
+}
+document.getElementById('pee').onclick=()=>start('peeing-elf');document.getElementById('theft').onclick=()=>start('thieving-elf');
+document.getElementById('reset').onclick=()=>{antics=[];tree.gifts.forEach(g=>{g.stolen=false;g.reserved=false});status.textContent='All presents restored.'};
+const canvases=['tree','wreath','robin','elf','scene'].map(id=>document.getElementById(id));
+function frame(now){const delta=Math.min(50,now-(last||now));last=now;if(!paused){time+=delta;christmas.updateSpecialParticles(antics,delta,1000,340);antics=antics.filter(p=>p.active)}
+for(const c of canvases){const w=c.clientWidth,h=c.id==='scene'?340:300,dpr=devicePixelRatio||1;if(c.width!==Math.round(w*dpr)||c.height!==Math.round(h*dpr)){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);c.style.height=h+'px'}const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ if(c.id==='scene'){const fit=w/1000;ctx.save();ctx.scale(fit,fit);christmas.drawTree(ctx,tree,time);for(const p of antics)christmas[p.type==='peeing-elf'?'drawPeeingElf':'drawThievingElf'](ctx,p,time);ctx.restore();continue}
+ const p={x:w/2,y:165,size:70,rotation:0,opacity:1,time,vx:1,waveOffset:0,state:Math.floor(time/3000)%2?'flying_in':'sitting'};
+ if(c.id==='tree'){p.size=78;p.y=160;christmas.drawTree(ctx,p,time)}
+ if(c.id==='wreath'){p.size=86;p.y=135;christmas.drawWreath(ctx,p,time)}
+ if(c.id==='robin'){p.size=80;christmas.drawRobin(ctx,p,time)}
+ if(c.id==='elf'){p.size=83;christmas.drawElf(ctx,p,time)}
+}
+for(const [id,type] of [['pee','peeing-elf'],['theft','thieving-elf']])document.getElementById(id).setAttribute('aria-pressed',String(antics.some(p=>p.type===type)));
+requestAnimationFrame(frame)}requestAnimationFrame(frame);
+</script></html>
