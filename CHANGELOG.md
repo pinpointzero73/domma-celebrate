@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 — 2026-09-30
+
+- Redraw the snowman with softly shaded snow, twig arms, coal features, a carved carrot, a striped knitted scarf and a holly-trimmed felt top hat.
+- Add the snowman to the Christmas character preview.
+
 ## 1.1.0 — 2026-09-30
 
 - Redraw Christmas trees with curved evergreen boughs, warm lights, baubles, a gold star and wrapped presents.

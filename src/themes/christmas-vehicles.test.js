@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { drawSleigh, drawTrain } from './christmas-vehicles.js';
-import { drawTree, drawWreath, drawRobin, drawElf } from './christmas-festive.js';
+import { drawTree, drawWreath, drawRobin, drawElf, drawSnowman } from './christmas-festive.js';
 
 // Record the canvas boundary: bad coordinates and leaked transforms can break
 // every particle drawn after a vehicle, even when the vehicle looks correct.
@@ -53,7 +53,7 @@ describe('Christmas vehicle drawing', () => {
 
 
 describe('Christmas decoration drawing', () => {
-  for (const draw of [drawTree, drawWreath, drawRobin, drawElf]) {
+  for (const draw of [drawTree, drawWreath, drawRobin, drawElf, drawSnowman]) {
     it(`${draw.name} draws finite geometry and restores canvas state`, () => {
       const c = context();
       const particle = {x: 40, y: 50, size: 20, time: 500, vx: -1, opacity: 0.8, state: 'sitting'};

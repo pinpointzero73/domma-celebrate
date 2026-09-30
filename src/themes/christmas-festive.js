@@ -161,3 +161,44 @@ export function drawElf(ctx, particle) {
   path(ctx, [['moveTo', -0.29, -0.9], ['quadraticCurveTo', 0, -0.97, 0.28, -0.9]], null, '#d9b878', 0.065);
   ellipse(ctx, 0.5, -1.05, 0.06, 0.075, '#f1ce7e'); ctx.restore();
 }
+
+/** A softly shaded snowman, in the same painted palette as the fir and robin. */
+export function drawSnowman(ctx, particle, time = 0) {
+  if (!begin(ctx, particle)) return;
+  ctx.rotate(Math.sin(time * 0.002 + (particle.wavePhase || 0)) * 0.025);
+  ellipse(ctx, 0, 2.18, 1.2, 0.18, 'rgba(8, 20, 35, 0.22)');
+  // Branches sit behind the packed snow, with small forked twigs.
+  for (const side of [-1, 1]) {
+    ctx.save(); ctx.scale(side, 1);
+    path(ctx, [['moveTo', 0.52, 0.4], ['quadraticCurveTo', 1.02, 0.19, 1.45, -0.12], ['lineTo', 1.73, -0.25], ['moveTo', 1.35, -0.05], ['lineTo', 1.4, -0.42], ['moveTo', 1.55, -0.17], ['lineTo', 1.8, 0.02]], null, '#705440', 0.065);
+    path(ctx, [['moveTo', 0.8, 0.28], ['lineTo', 1.43, -0.1]], null, '#b7956b', 0.018);
+    ctx.restore();
+  }
+  for (const [y, rx, ry] of [[1.28, 0.98, 0.94], [0.32, 0.7, 0.7], [-0.57, 0.51, 0.5]]) {
+    ellipse(ctx, 0, y, rx, ry, gradient(ctx, y - ry, y + ry, ['#fffaf0', '#eaf1f3', '#9bb9cb']));
+    ellipse(ctx, -rx * 0.28, y - ry * 0.24, rx * 0.5, ry * 0.46, 'rgba(255,255,249,0.35)');
+    for (let i = 0; i < 5; i++) ellipse(ctx, rx * (0.3 + i % 2 * 0.12), y + ry * (i / 7 - 0.15), 0.018, 0.014, '#b7cbd4');
+  }
+  for (const y of [0.2, 0.55, 1.04]) {
+    ellipse(ctx, 0.08, y, 0.075, 0.065, '#35414a');
+    ellipse(ctx, 0.055, y - 0.02, 0.022, 0.014, '#77878c');
+  }
+  // Long knitted scarf, with folds and fine gold stripes.
+  path(ctx, [['moveTo', 0.2, -0.19], ['quadraticCurveTo', 0.5, 0.3, 0.43, 0.95], ['lineTo', 0.69, 0.92], ['quadraticCurveTo', 0.66, 0.28, 0.48, -0.17], ['closePath']], gradient(ctx, -0.2, 1, ['#d56464', '#a33548']));
+  for (const y of [0.27, 0.56, 0.84]) path(ctx, [['moveTo', 0.43, y], ['lineTo', 0.65, y - 0.015]], null, '#deb88b', 0.028);
+  for (let i = 0; i < 5; i++) path(ctx, [['moveTo', 0.44 + i * 0.055, 0.93], ['lineTo', 0.42 + i * 0.055, 1.06]], null, '#b84352', 0.025);
+  ellipse(ctx, 0, -0.17, 0.56, 0.14, gradient(ctx, -0.3, -0.03, ['#e57f75', '#b43c51']));
+  path(ctx, [['moveTo', -0.43, -0.18], ['quadraticCurveTo', 0, -0.01, 0.45, -0.15]], null, '#f0b79a', 0.022);
+  // Coal eyes and smile; a slightly crooked carved carrot.
+  for (const x of [-0.17, 0.16]) { ellipse(ctx, x, -0.66, 0.052, 0.057, '#273844'); ellipse(ctx, x - 0.015, -0.68, 0.013, 0.012, '#e2edf0'); }
+  for (let i = 0; i < 5; i++) { const x = (i - 2) * 0.085; ellipse(ctx, x, -0.39 + Math.cos((i - 2) * 0.55) * 0.07, 0.025, 0.023, '#44515b'); }
+  path(ctx, [['moveTo', 0.04, -0.59], ['quadraticCurveTo', 0.28, -0.63, 0.62, -0.54], ['quadraticCurveTo', 0.29, -0.45, 0.04, -0.48], ['closePath']], gradient(ctx, -0.63, -0.45, ['#efa151', '#cb6534']));
+  // Curved felt crown and brim, satin band and a sprig of holly.
+  path(ctx, [['moveTo', -0.43, -1.05], ['lineTo', -0.38, -1.74], ['quadraticCurveTo', 0, -1.86, 0.4, -1.72], ['lineTo', 0.45, -1.04], ['closePath']], gradient(ctx, -1.8, -1, ['#465260', '#182b3b']));
+  rect(ctx, -0.4, -1.22, 0.83, 0.16, 0.025, '#a43c50');
+  ellipse(ctx, 0, -1.04, 0.7, 0.115, '#213544');
+  path(ctx, [['moveTo', -0.55, -1.08], ['quadraticCurveTo', 0, -1.14, 0.5, -1.06]], null, '#6d7d88', 0.02);
+  for (const side of [-1, 1]) path(ctx, [['moveTo', 0.2, -1.23], ['quadraticCurveTo', 0.2 + side * 0.27, -1.52, 0.2 + side * 0.25, -1.25], ['quadraticCurveTo', 0.2 + side * 0.18, -1.15, 0.2, -1.23]], '#527957');
+  for (const [x, y] of [[0.18, -1.22], [0.26, -1.2], [0.22, -1.27]]) ellipse(ctx, x, y, 0.04, 0.04, '#c24c57');
+  ctx.restore();
+}
