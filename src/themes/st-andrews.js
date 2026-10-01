@@ -1,3 +1,5 @@
+import {drawBagpiper} from './character-drawing.js';
+
 /**
  * St Andrew's Day Theme for Domma Celebrations
  * (November 30th, Scottish Celebration)
@@ -713,107 +715,7 @@ export default {
   /**
    * Draw bagpiper
    */
-  drawBagpiper(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-    const dir = particle.vx > 0 ? 1 : -1;
-
-    ctx.save();
-    ctx.translate(x, y);
-    if (dir === -1) {
-      ctx.scale(-1, 1);
-    }
-
-    const marchPhase = Math.sin(time * 0.015 + particle.marchPhase) * (Math.PI / 6);
-
-    // Legs (marching)
-    ctx.strokeStyle = '#000080'; // Navy blue kilt
-    ctx.lineWidth = size * 0.15;
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.2, size * 0.6);
-    ctx.lineTo(-size * 0.3, size * 1.4 + Math.sin(marchPhase) * size * 0.15);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(size * 0.2, size * 0.6);
-    ctx.lineTo(size * 0.3, size * 1.4 + Math.sin(marchPhase + Math.PI) * size * 0.15);
-    ctx.stroke();
-
-    // Kilt (tartan pattern suggested)
-    ctx.fillStyle = '#000080';
-    ctx.fillRect(-size * 0.45, size * 0.2, size * 0.9, size * 0.5);
-
-    // Sporran (decorative pouch)
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(-size * 0.25, size * 0.5, size * 0.5, size * 0.25);
-
-    // Body (red tunic)
-    ctx.fillStyle = '#8B0000';
-    ctx.fillRect(-size * 0.4, -size * 0.2, size * 0.8, size * 0.5);
-
-    // Arms (holding bagpipes)
-    ctx.strokeStyle = '#FFD7BA';
-    ctx.lineWidth = size * 0.12;
-    // Left arm
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.3, 0);
-    ctx.lineTo(-size * 0.6, size * 0.3);
-    ctx.stroke();
-    // Right arm
-    ctx.beginPath();
-    ctx.moveTo(size * 0.3, 0);
-    ctx.lineTo(size * 0.7, size * 0.2);
-    ctx.stroke();
-
-    // Bagpipes
-    ctx.fillStyle = '#654321';
-    // Bag
-    ctx.beginPath();
-    ctx.ellipse(size * 0.1, size * 0.25, size * 0.35, size * 0.25, 0, 0, Math.PI * 2);
-    ctx.fill();
-    // Pipes (drones)
-    ctx.strokeStyle = '#654321';
-    ctx.lineWidth = size * 0.08;
-    ctx.beginPath();
-    ctx.moveTo(size * 0.15, size * 0.05);
-    ctx.lineTo(size * 0.15, -size * 0.7);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(size * 0.3, size * 0.1);
-    ctx.lineTo(size * 0.3, -size * 0.6);
-    ctx.stroke();
-    // Chanter (melody pipe)
-    ctx.beginPath();
-    ctx.moveTo(size * 0.55, size * 0.2);
-    ctx.lineTo(size * 0.65, size * 0.7);
-    ctx.stroke();
-
-    // Head
-    ctx.fillStyle = '#FFD7BA';
-    ctx.beginPath();
-    ctx.arc(0, -size * 0.45, size * 0.35, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Glengarry (Scottish cap)
-    ctx.fillStyle = '#000080';
-    ctx.fillRect(-size * 0.4, -size * 0.8, size * 0.8, size * 0.15);
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.35, -size * 0.8);
-    ctx.lineTo(0, -size * 1.1);
-    ctx.lineTo(size * 0.35, -size * 0.8);
-    ctx.closePath();
-    ctx.fill();
-
-    // Feather plume
-    ctx.strokeStyle = '#ff0000';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 1.1);
-    ctx.quadraticCurveTo(size * 0.2, -size * 1.3, size * 0.3, -size * 1.4);
-    ctx.stroke();
-
-    ctx.restore();
-  },
+  drawBagpiper,
 
   /**
    * Draw Saltire flag (white X on blue)
