@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.3.0 — 2026-10-01
 
 - Redraw leprechauns, bagpipers, knights, English and Welsh dragons, and Cupid with layered clothes, articulated limbs and detailed wings. Add a seasonal character preview gallery.
 
