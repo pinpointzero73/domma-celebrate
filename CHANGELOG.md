@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Redraw Bonfire Night’s bonfire, dressed Guy, Catherine wheel, Roman candle and sparkler bundle with layered flames, shaded wood, stitched clothing and fine sparks.
+- Make bonfire embers and sparkler rays deterministic across frames.
+- Add a Bonfire Night illustration preview with pause and comparison controls.
+
 ## 1.2.0 — 2026-10-01
 
 - Redraw Halloween pumpkins, jack-o-lanterns, ghosts, bats, scarecrows and the haunted house with shaded illustration, candlelight and fabric details.
