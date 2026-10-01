@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Redraw leprechauns, bagpipers, knights, English and Welsh dragons, and Cupid with layered clothes, articulated limbs and detailed wings. Add a seasonal character preview gallery.
+
 - Redraw Bonfire Night’s bonfire, dressed Guy, Catherine wheel, Roman candle and sparkler bundle with layered flames, shaded wood, stitched clothing and fine sparks.
 - Make bonfire embers and sparkler rays deterministic across frames.
 - Add a Bonfire Night illustration preview with pause and comparison controls.
