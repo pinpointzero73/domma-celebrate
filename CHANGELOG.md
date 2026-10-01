@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 — 2026-10-01
 
 - Redraw Halloween pumpkins, jack-o-lanterns, ghosts, bats, scarecrows and the haunted house with shaded illustration, candlelight and fabric details.
 - Redraw Valentine’s butterflies with tapered wings, veins, markings and antennae.
