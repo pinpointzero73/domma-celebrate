@@ -82,7 +82,7 @@ if (started) {
 
 **Returns `null`** when there is no celebration in season, having created nothing and mounted
 nothing. That is the normal outcome for most of the year, and it is why the controls do not
-appear on a random Tuesday in July: a disc that toggles nothing is worse than no disc.
+appear on a day outside every seasonal window: a disc that toggles nothing is worse than no disc.
 
 Otherwise it returns `{ celebrations, control }`, where `control` is `null` if you passed
 `ui: false`.
@@ -750,3 +750,111 @@ still produce a 1px canvas.
 
 **Nothing is remembered.** The engine on its own stores nothing by design. Use `autoInit()` or
 `mountControl()`, and check `storageKey` is not `null`.
+
+## One standalone character
+
+```js
+const mascot = await DommaCelebrate.mountCharacter('#mascot', {
+  character: 'mooning-elf', size: 'large', facing: 'left'
+});
+// Stop or remove it when your page/component closes:
+mascot.destroy();
+```
+
+This needs only a container element and the library; it ignores seasonal dates
+and adds no overlay. Heights: `small` (96px), `medium` (160px), `large`
+(240px), `xlarge` (360px), or a custom pixel height such as `200`.
+`animate: false` and reduced-motion preferences draw a still pose.
+Call `getCharacters()` to list all available characters.
+
+
+## New Year, Easter and Summer Garden
+
+`new-year` runs automatically from 31 December through 2 January, taking over from Christmas on 31 December. `easter` uses Gregorian Easter each year, from the Tuesday before Easter through Easter Monday, and takes priority over overlapping patron saint dates. `summer-garden` runs from 1 June through 31 August (UK summer). All ranges include both endpoints in local time. Manual theme selection works throughout the year, including in other climates.
+
+| Theme | Trait keys |
+|---|---|
+| `new-year` | `confetti`, `streamer`, `firework`, `balloon`, `midnightClock` |
+| `easter` | `blossom`, `flower`, `butterfly`, `easterEgg`, `bunny` |
+| `summer-garden` | `blossom`, `flower`, `butterfly`, `bee`, `ladybird` |
+
+```js
+const garden = new Celebrations({
+  theme: 'summer-garden',
+  intensity: 'light',
+  traits: {bee: false, flower: 0.5}
+});
+await garden.init();
+```
+
+Light, medium and heavy set the density of petals/confetti and decorations. All three respect reduced motion by default. Easter and Summer Garden share their canvas artwork without requiring bitmap assets.
+
+
+## Sparkler greetings and Chinese New Year
+
+New Year writes **Happy New Year**, Christmas writes **Merry Christmas**, and Chinese New Year writes **新年快乐** (Happy New Year). Each vector stroke appears behind a moving sparkler tip with a short falling trail of sparks. Writing takes 6.5 seconds, followed by a hold, fade and resting interval before repeating. The animation follows the engine clock, so Pause also pauses the writing. English greetings use two balanced lines below 600px; the Chinese greeting stays on one line.
+
+```js
+new Celebrations({theme: 'christmas', traits: {sparklerMessage: false}});
+new Celebrations({theme: 'chinese-new-year', traits: {dragon: true, lantern: 0.5}});
+```
+
+`chinese-new-year` has `confetti`, `lantern`, `dragon`, `firework` and `sparklerMessage` traits. It runs for seven local calendar days, starting on Chinese New Year, and takes precedence when dates overlap another celebration. Dates for 2020-2050 come from the [Hong Kong Observatory conversion tables](https://www.hko.gov.hk/en/gts/time/conversion.htm); later dates use the browser's Chinese calendar when available. It loads no calendar data over the network at runtime.
+
+The garden bees visit enabled flower heads, hover briefly, then choose the next flower. Disabling the flowers leaves the bees flying. Easter's bunny rests between short hops and turns before reaching the edge. These animations use the same pause and reduced-motion behaviour as the rest of the scene.
+
+
+### Sparkler style, colour and year greeting
+
+```js
+const celebration = new Celebrations({
+  theme: 'christmas',
+  sparkler: {
+    style: 'cursive',
+    colour: 'silver',
+    greeting: 'best-wishes',
+    year: 2027
+  }
+});
+await celebration.init();
+```
+
+| Sparkler option | Default | Values |
+|---|---|---|
+| `style` | `stroke` | `stroke`, `cursive`; cursive uses connected lowercase English lettering |
+| `colour` | `gold` | `gold`, `silver`; changes the lettering, tip, falling sparks and shimmer. `color` is also accepted |
+| `greeting` | `default` | `default` uses the seasonal message; `best-wishes` writes Best wishes for the selected year |
+| `year` | Current year | An integer from 1 through 9999; used by `best-wishes` |
+
+The settings work on Christmas, New Year and Chinese New Year. Chinese New Year's default greeting uses Chinese stroke lettering in either colour. Disable the entire greeting with `traits: {sparklerMessage: false}`. Gold stroke lettering remains the default.
+
+
+## Winter and standalone Make it rain
+
+`winter` runs from 1 December through 28 February in local time, with the existing holidays taking priority. Choose it explicitly for other climates or dates. `snowflake`, `pine`, `snowdrift`, `icicle` and `star` are independent traits. All three intensity levels are available.
+
+```js
+new Celebrations({theme: 'winter', traits: {icicle: false, pine: 0.5}});
+```
+
+`make-it-rain` is a manual weather theme with falling raindrops and ground splashes. It never activates by date. Use its standalone launcher for an effect that cleans itself up:
+
+```js
+import {makeItRain} from 'domma-celebrate';
+const rain = await makeItRain({intensity: 'heavy', duration: 6000});
+// Optional: rain?.pause(); rain?.start(); rain?.destroy();
+```
+
+`duration` is elapsed wall-clock time in milliseconds, defaults to 8000, and is capped at 600000. `0` keeps the effect until you destroy it. Explicit destruction clears the timer. Reduced motion returns `null` without creating a canvas. For a scoped effect, pass `container: '#offer'`. Calling `new Celebrations({theme: 'make-it-rain'})` directly runs continuously under the normal engine lifecycle.
+
+
+## Personalised messages and occasions
+
+```js
+new Celebrations({theme: 'birthday', message: 'Happy Birthday, Sarah!', sparkler: {style: 'cursive', colour: 'gold'}});
+new Celebrations({message: 'Best wishes for {year}!', sparkler: {year: 2027, colour: 'silver'}});
+```
+
+`message` overrides seasonal and Best wishes presets, normalises whitespace and limits text to 120 characters. `{year}` substitutes the year option. Both lettering styles support Latin and extended Latin characters. Without a theme, a custom message selects the standalone `greeting` scene. With `christmas`, `new-year`, `chinese-new-year`, `graduation`, `birthday` or `anniversary`, it replaces that scene's greeting.
+
+Choose `money-rain` or `moneyRain()` for the separate banknote effect. Choose `autumn` for falling leaves, acorns and mushrooms; automatic mode uses it September-November after specific holidays.

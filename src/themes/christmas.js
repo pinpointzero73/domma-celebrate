@@ -18,7 +18,10 @@
 import { createParticle } from './../core/particles.js';
 import { drawSleigh, drawTrain } from './christmas-vehicles.js';
 import { drawTree, drawWreath, drawRobin, drawElf, drawSnowman, TREE_GIFTS } from './christmas-festive.js';
+import {drawMooningElf} from './mooning-drawing.js';
+import {spawnMooningCharacter, updateMooningCharacter} from './mooning-antics.js';
 import { spawnElfAntic, updateElfAntic } from './christmas-antics.js';
+import {createSparklerMessage, updateSparklerMessage, drawSparklerMessage} from './sparkler-writing.js';
 
 export default {
   name: 'christmas',
@@ -31,6 +34,7 @@ export default {
       count: 50,
       speedRange: [0.5, 1.5],
       sizeRange: [1, 3],
+      mooningElfChance: 0.0007,
       peeingElfChance: 0.0007,
       thievingElfChance: 0.001,
       trees: 3,
@@ -42,6 +46,7 @@ export default {
       count: 150,
       speedRange: [0.8, 2.5],
       sizeRange: [1, 4],
+      mooningElfChance: 0.0007,
       peeingElfChance: 0.0007,
       thievingElfChance: 0.001,
       trees: 6,
@@ -53,6 +58,7 @@ export default {
       count: 300,
       speedRange: [1.0, 3.5],
       sizeRange: [1, 5],
+      mooningElfChance: 0.0007,
       peeingElfChance: 0.0007,
       thievingElfChance: 0.001,
       trees: 10,
@@ -63,7 +69,7 @@ export default {
   },
 
   particles: ['snowflake'],
-  decorations: ['tree', 'wreath', 'sleigh', 'robin', 'train', 'elf', 'firework', 'north-star', 'snowman', 'peeing-elf', 'thieving-elf'],
+  decorations: ['tree', 'wreath', 'sleigh', 'robin', 'train', 'elf', 'firework', 'north-star', 'snowman', 'peeing-elf', 'thieving-elf', 'mooning-elf', 'sparkler-message'],
 
   /**
    * Trait manifest - what a host is allowed to turn on, off or thin out.
@@ -78,6 +84,7 @@ export default {
    * rather than as a particle.
    */
   traits: {
+    sparklerMessage: {label: 'Sparkler greeting', types: ['sparkler-message']},
     snowflake: { label: 'Snowflakes', types: ['snowflake'], kind: 'particle' },
     tree: { label: 'Christmas trees', types: ['tree'], count: 'trees' },
     wreath: { label: 'Wreaths', types: ['wreath'], count: 'wreaths' },
@@ -87,6 +94,7 @@ export default {
     robin: { label: 'Robins', types: ['robin'] },
     train: { label: 'Steam train', types: ['train'] },
     elf: { label: 'Elves', types: ['elf'] },
+    mooningElf: {label: 'Mooning elf', types: ['mooning-elf'], chance: 'mooningElfChance', enabled: false},
     peeingElf: { label: 'Peeing elf', types: ['peeing-elf'], chance: 'peeingElfChance', enabled: false },
     thievingElf: { label: 'Thieving elf', types: ['thieving-elf'], chance: 'thievingElfChance', enabled: false },
     firework: { label: 'Fireworks', types: ['firework', 'spark'] }
@@ -209,7 +217,7 @@ export default {
    * Create initial static decorations (trees, wreaths, and North Stars)
    */
   createInitialDecorations(canvasWidth, canvasHeight, config) {
-    const decorations = [];
+    const decorations = [createSparklerMessage('Merry Christmas', canvasWidth, canvasHeight, config.sparkler)];
 
     // Create trees
     const treeCount = config.trees || 6;
@@ -253,6 +261,8 @@ export default {
    * Spawn special particles with configurable probability
    */
   spawnSpecialParticle(specialParticles, canvasWidth, canvasHeight, config = {}) {
+    const mooner = spawnMooningCharacter(specialParticles, canvasWidth, canvasHeight, config, 'mooning-elf', 'mooningElfChance');
+    if (mooner) return mooner;
     const antic = spawnElfAntic(specialParticles, canvasWidth, canvasHeight, config);
     if (antic) return antic;
     const choice = Math.random();
@@ -389,6 +399,14 @@ export default {
    */
   updateSpecialParticles(specialParticles, deltaTime, canvasWidth = 1024, canvasHeight = 768) { // Added default canvas dimensions
     specialParticles.forEach(particle => {
+      if (particle.type === 'sparkler-message') {
+        updateSparklerMessage(particle, deltaTime);
+        return;
+      }
+      if (particle.type === 'mooning-elf') {
+        updateMooningCharacter(particle, deltaTime, canvasWidth);
+        return;
+      }
       // Increment time for animated particles
       if (particle.time !== undefined) {
         particle.time += deltaTime;
@@ -618,6 +636,7 @@ export default {
    * Draw Christmas tree with lights, baubles, tinsel, and star
    */
   drawTree,
+  drawSparklerMessage,
 
   /**
    * Draw Christmas wreath with bow and lights
@@ -707,6 +726,7 @@ export default {
    * Draw walking elf
    */
   drawElf,
+  drawMooningElf,
   drawPeeingElf: drawElf,
   drawThievingElf: drawElf,
 

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Standalone celebration characters</title>
+<style>
+body{margin:0;background:#101a21;color:#f2e6d5;font:16px system-ui}main{max-width:1100px;margin:auto;padding:42px 24px}h1{font-size:clamp(32px,5vw,52px);margin-bottom:12px}p{color:#b8c9ca;line-height:1.65}a{color:#edc886}.controls{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:28px 0}button,select{font:inherit;border-radius:8px;padding:10px 16px;background:#e6c48c;color:#1a2728;border:0}label{display:flex;gap:10px;align-items:center}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}.card{border:1px solid #3c5157;border-radius:18px;padding:22px;background:linear-gradient(140deg,#24383e,#17272e)}.card h2{font-size:20px;margin:0 0 18px}.stage{height:260px;display:flex;align-items:center;justify-content:center;max-width:100%;overflow:hidden}code{font-size:12px;line-height:1.6;color:#e6c48c;overflow-wrap:anywhere}.note{padding:20px;border-left:3px solid #cfa976;background:#1b2c33;margin-bottom:28px}#status{min-height:24px}
+</style>
+</head>
+<body><main>
+<h1>A character, wherever you want one.</h1>
+<p>Our seasonal cast can now stand on its own. Choose a size, pop one into a page or card, and let it do its thing.</p>
+<div class="note"><code>[celebrate character="mooning-leprechaun" size="large"]</code><br><code>[celebrate character="mooning-elf" size="200" /]</code></div>
+<div class="controls"><label>Size <select id="size"><option value="small">Small · 96px</option><option value="medium">Medium · 160px</option><option value="large" selected>Large · 240px</option><option value="xlarge">Extra large · 360px</option></select></label><button id="pause">Pause</button><button id="mirror">Face left</button></div>
+<p id="status" aria-live="polite"></p><div class="gallery"></div>
+</main>
+<script type="module">
+import {mountCharacter, getCharacters, resolveCharacterSize} from '../src/characters.js';
+const gallery=document.querySelector('.gallery'),size=document.querySelector('#size');
+let views=[],paused=matchMedia('(prefers-reduced-motion: reduce)').matches,facing='right',generation=0;
+async function render(){const current=++generation;views.forEach(view=>view.destroy());views=[];gallery.replaceChildren();
+for(const character of getCharacters()){
+ const card=document.createElement('section');card.className='card';
+ const title=document.createElement('h2');title.textContent=character.label;
+ const stage=document.createElement('div');stage.className='stage';stage.style.height=`${resolveCharacterSize(size.value)+20}px`;
+ const code=document.createElement('code');code.textContent=`[celebrate character="${character.name}" size="${size.value}"]`;
+ card.append(title,stage,code);gallery.append(card);
+ const view=await mountCharacter(stage,{character:character.name,size:size.value,animate:!paused,facing});
+ if(current!==generation){view.destroy();return}views.push(view);
+}
+document.querySelector('#status').textContent=`${views.length} characters · transparent backgrounds · no seasonal overlay`;
+}
+const pause=document.querySelector('#pause');pause.textContent=paused?'Play':'Pause';
+pause.onclick=()=>{paused=!paused;views.forEach(v=>paused?v.pause():v.play());pause.textContent=paused?'Play':'Pause'};
+document.querySelector('#mirror').onclick=event=>{facing=facing==='right'?'left':'right';event.target.textContent=facing==='right'?'Face left':'Face right';render()};
+size.onchange=render;render();window.addEventListener('pagehide',()=>views.forEach(v=>v.destroy()));
+</script>
+</body></html>

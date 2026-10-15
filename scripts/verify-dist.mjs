@@ -33,12 +33,12 @@ for (const file of artefacts) {
 }
 
 // The ESM entry must actually split: if the themes were inlined, a July visitor
-// downloads all eight of them for nothing.
+// downloads all twenty of them for nothing.
 const chunkDir = 'dist/chunks';
 check('dist/chunks exists', existsSync(chunkDir));
 if (existsSync(chunkDir)) {
   const chunks = readdirSync(chunkDir);
-  check(`dist/chunks holds at least 8 theme chunks (found ${chunks.length})`, chunks.length >= 8);
+  check(`dist/chunks holds at least 20 theme chunks (found ${chunks.length})`, chunks.length >= 20);
 
   const esm = readFileSync('dist/domma-celebrate.esm.js', 'utf8');
   check('ESM entry references its chunks', esm.includes('./chunks/'));
@@ -55,6 +55,8 @@ if (existsSync('dist/domma-celebrate.min.js')) {
   check('UMD inlines the themes', umd.includes('drawSleigh'));
   check('UMD has no unresolved chunk import', !umd.includes('./chunks/'));
 }
+
+for (const font of ['Allura', 'ABeeZee']) check(`${font} licence distributed`, existsSync(`dist/licenses/${font}-Regular-OFL.txt`));
 
 if (failures.length) {
   console.error('dist verification failed:');

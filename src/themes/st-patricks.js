@@ -1,3 +1,5 @@
+import {drawMooningLeprechaun} from './mooning-drawing.js';
+import {spawnMooningCharacter, updateMooningCharacter} from './mooning-antics.js';
 import {drawLeprechaun, drawStaticLeprechaun} from './character-drawing.js';
 
 /**
@@ -25,6 +27,7 @@ export default {
       speedRange: [0.4, 1.2],
       sizeRange: [2, 4],
       pots: 1,
+      mooningLeprechaunChance: 0.0005,
       leprechaunChance: 0.0003,
       twinklingStars: 10
     },
@@ -33,6 +36,7 @@ export default {
       speedRange: [0.5, 1.5],
       sizeRange: [2, 5],
       pots: 2,
+      mooningLeprechaunChance: 0.0005,
       leprechaunChance: 0.0005,
       twinklingStars: 18
     },
@@ -41,13 +45,14 @@ export default {
       speedRange: [0.6, 1.8],
       sizeRange: [3, 6],
       pots: 3,
+      mooningLeprechaunChance: 0.0005,
       leprechaunChance: 0.0008,
       twinklingStars: 25
     }
   },
 
   particles: ['clover-petal', 'shamrock', 'gold-coin', 'sparkle'],
-  decorations: ['pot-of-gold', 'rainbow', 'leprechaun', 'harp', 'static-leprechaun', 'moon', 'twinkling-star'],
+  decorations: ['pot-of-gold', 'rainbow', 'leprechaun', 'harp', 'static-leprechaun', 'moon', 'twinkling-star', 'mooning-leprechaun'],
 
   /**
    * Trait manifest - what a host is allowed to turn on, off or thin out.
@@ -68,6 +73,7 @@ export default {
     sparkle: { label: 'Sparkles', types: ['sparkle'], kind: 'particle' },
     potOfGold: { label: 'Pots of gold', types: ['pot-of-gold'], count: 'pots' },
     twinklingStar: { label: 'Twinkling stars', types: ['twinkling-star'], count: 'twinklingStars' },
+    mooningLeprechaun: {label: 'Mooning leprechaun', types: ['mooning-leprechaun'], chance: 'mooningLeprechaunChance', enabled: false},
     leprechaun: { label: 'Leprechauns', types: ['leprechaun', 'static-leprechaun'], chance: 'leprechaunChance' },
     rainbow: { label: 'Rainbow', types: ['rainbow'] },
     banshee: { label: 'Banshee', types: ['banshee'] },
@@ -328,6 +334,8 @@ export default {
    * Spawn special St Patrick's particles
    */
   spawnSpecialParticle(specialParticles, canvasWidth, canvasHeight, config) {
+    const mooner = spawnMooningCharacter(specialParticles, canvasWidth, canvasHeight, config, 'mooning-leprechaun', 'mooningLeprechaunChance');
+    if (mooner) return mooner;
     const choice = Math.random();
 
     // Leprechaun (very rare, max 1)
@@ -404,6 +412,10 @@ export default {
   updateSpecialParticles(specialParticles, deltaTime, canvasWidth, canvasHeight) {
     specialParticles.forEach(particle => {
       if (!particle.active) return;
+      if (particle.type === 'mooning-leprechaun') {
+        updateMooningCharacter(particle, deltaTime, canvasWidth);
+        return;
+      }
 
       if (particle.type === 'leprechaun' || particle.type === 'banshee') {
         // Only update time for animation - position is handled by core updateMovingParticle()
@@ -755,6 +767,7 @@ export default {
    * Draw leprechaun
    */
   drawLeprechaun,
+  drawMooningLeprechaun,
 
   /**
    * Draw banshee (flying ghostly figure)

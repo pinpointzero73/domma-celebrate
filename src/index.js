@@ -1,7 +1,7 @@
 /**
  * domma-celebrate - seasonal canvas celebrations for any website.
  *
- * Eight themes that know their own place in the calendar. Point the library at
+ * Twenty themes that know their own place in the calendar. Point the library at
  * a page and it works out whether anything is in season, loads only that
  * theme's code, and draws it over the top without touching your layout.
  *
@@ -15,7 +15,21 @@
  * @module domma-celebrate
  */
 
+import {mountCharacter, getCharacters} from './characters.js';
+export {mountCharacter, getCharacters, CHARACTERS, CHARACTER_SIZES, resolveCharacterSize} from './characters.js';
+
 import { Celebrations } from './core/engine.js';
+import {launchMakeItRain} from './themes/rain-control.js';
+
+/** Weather rain, independent of the date. Duration is milliseconds; 0 loops. */
+export function makeItRain(options = {}) {
+  return launchMakeItRain(Celebrations, options);
+}
+
+/** The separate illustrated banknote shower. */
+export function moneyRain(options = {}) {
+  return launchMakeItRain(Celebrations, options, 'money-rain');
+}
 import { mountControl, readPreferences } from './ui/control.js';
 import {
   THEMES,
@@ -80,7 +94,7 @@ export const version = typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0
  *
  * Returns null - having created nothing and mounted nothing - when there is no
  * celebration to show. That is the normal outcome for most of the year, and it
- * is why the controls do not appear on a random Tuesday in July: a disc that
+ * is why the controls do not appear on a day outside every seasonal window: a disc that
  * toggles nothing is worse than no disc.
  *
  * A visitor's remembered choice wins over `enabled` and `intensity`, so turning
@@ -95,7 +109,7 @@ export const version = typeof __VERSION__ !== 'undefined' ? __VERSION__ : '0.0.0
  */
 export async function autoInit(options = {}) {
   const storageKey = options.storageKey === null ? null : (options.storageKey || 'domma-celebrate');
-  const theme = options.theme || 'auto';
+  const theme = options.theme || (options.message || options.sparkler?.message ? 'greeting' : 'auto');
 
   if (theme === 'auto' && !getCurrentTheme()) {
     return null;
@@ -183,6 +197,10 @@ bootstrapFromScriptTag();
 
 export default {
   Celebrations,
+  makeItRain,
+  moneyRain,
+  mountCharacter,
+  getCharacters,
   autoInit,
   mountControl,
   readPreferences,

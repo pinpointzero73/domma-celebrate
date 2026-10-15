@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.4.0] - 2026-10-15
+
+- Add custom sparkler messages with names and year substitution, plus Graduation, Birthday, Anniversary, Autumn and standalone greetings.
+- Use actual weather rain for Make it rain and separate banknotes as Money Rain.
+
+- Add Winter with snow, frosted pines, drifts, icicles and stars. Specific holidays keep priority in automatic mode.
+- Add actual weather rain with raindrops and splashes, keeping banknotes in a separate Money Rain theme and launcher.
+- Match garden butterflies to the existing meadow palette, wandering flight, rising motion and wingbeats.
+
+- Add optional cursive sparkler lettering, silver sparks and shimmering letters. Add a Best wishes greeting with a configurable year. Chinese New Year now writes 新年快乐 by default.
+
+- Add stroke-by-stroke sparkler greetings to New Year and Christmas, with glowing tips, sparks, fades and independent switches.
+- Add Chinese New Year with a serpentine dragon, red lanterns, fireworks, confetti, sparkler greeting and a moving seven-day calendar window. Pin 2020-2050 dates to the Hong Kong Observatory tables.
+- Make garden bees visit flowers and make the Easter bunny hop, with pauses between visits and hops.
+
+- Add New Year with confetti, streamers, fireworks, balloons and a midnight clock.
+- Add Easter with a moving Gregorian calendar window, decorated eggs, blossom, a bunny, flowers and butterflies.
+- Add Summer Garden with petals, flowers, butterflies, bumblebees and ladybirds.
+- Give each scene per-trait controls and all three intensity levels. New Year takes over from Christmas on 31 December; Summer Garden runs June through August.
+
+
 ## 1.3.0 — 2026-10-01
 
 - Redraw leprechauns, bagpipers, knights, English and Welsh dragons, and Cupid with layered clothes, articulated limbs and detailed wings. Add a seasonal character preview gallery.

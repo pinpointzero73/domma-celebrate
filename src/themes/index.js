@@ -15,15 +15,37 @@
  *
  * Date ranges are `[[startMonth, startDay], [endMonth, endDay]]`, inclusive at
  * both ends, months 1-12. A range whose end month is earlier than its start
- * month wraps the year (Christmas runs 1 December to 1 January).
+ * month wraps the year (New Year runs 31 December to 2 January).
  */
 
+import {isEasterSeason, isChineseNewYearSeason} from './calendar.js';
+
 export const THEMES = {
+  'chinese-new-year': {
+    name: 'chinese-new-year', displayName: 'Chinese New Year', emoji: '🐉',
+    dates: null, isInSeason: isChineseNewYearSeason,
+    load: () => import('./chinese-new-year.js')
+  },
+  'new-year': {
+    name: 'new-year', displayName: 'New Year', emoji: '🎉',
+    dates: [[12, 31], [1, 2]],
+    load: () => import('./new-year.js')
+  },
+  easter: {
+    name: 'easter', displayName: 'Easter', emoji: '🐣',
+    dates: null, isInSeason: isEasterSeason,
+    load: () => import('./easter.js')
+  },
+  'summer-garden': {
+    name: 'summer-garden', displayName: 'Summer Garden', emoji: '🌼',
+    dates: [[6, 1], [8, 31]],
+    load: () => import('./summer-garden.js')
+  },
   christmas: {
     name: 'christmas',
     displayName: 'Christmas',
     emoji: '🎄',
-    dates: [[12, 1], [1, 1]],
+    dates: [[12, 1], [12, 30]],
     load: () => import('./christmas.js')
   },
   valentines: {
@@ -74,6 +96,40 @@ export const THEMES = {
     emoji: '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
     dates: [[11, 25], [11, 30]],
     load: () => import('./st-andrews.js')
+  },
+  winter: {
+    name: 'winter', displayName: 'Winter', emoji: '❄️',
+    dates: [[12, 1], [2, 28]],
+    load: () => import('./winter.js')
+  },
+  'make-it-rain': {
+    name: 'make-it-rain', displayName: 'Make it rain', emoji: '🌧️',
+    dates: null,
+    load: () => import('./make-it-rain.js')
+  },
+  'money-rain': {
+    name: 'money-rain', displayName: 'Money Rain', emoji: '💸', dates: null,
+    load: () => import('./money-rain.js')
+  },
+  graduation: {
+    name: 'graduation', displayName: 'Graduation', emoji: '🎓', dates: null,
+    load: () => import('./graduation.js')
+  },
+  birthday: {
+    name: 'birthday', displayName: 'Birthday', emoji: '🎂', dates: null,
+    load: () => import('./birthday.js')
+  },
+  anniversary: {
+    name: 'anniversary', displayName: 'Anniversary', emoji: '💍', dates: null,
+    load: () => import('./anniversary.js')
+  },
+  greeting: {
+    name: 'greeting', displayName: 'Sparkler greeting', emoji: '✨', dates: null,
+    load: () => import('./greeting.js')
+  },
+  autumn: {
+    name: 'autumn', displayName: 'Autumn', emoji: '🍂', dates: [[9, 1], [11, 30]],
+    load: () => import('./autumn.js')
   }
 };
 
@@ -171,7 +227,7 @@ export function isDateInRange(start, end, date = new Date()) {
  */
 export function getCurrentTheme(date = new Date()) {
   for (const [name, theme] of Object.entries(getThemes())) {
-    if (theme.dates && isDateInRange(theme.dates[0], theme.dates[1], date)) {
+    if (theme.isInSeason ? theme.isInSeason(date) : theme.dates && isDateInRange(theme.dates[0], theme.dates[1], date)) {
       return name;
     }
   }

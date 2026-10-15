@@ -21,6 +21,15 @@ const substituteVersion = () => replace({
   values: { __VERSION__: JSON.stringify(version) }
 });
 
+const fontLicences = () => ({
+  name: 'font-licences',
+  generateBundle() {
+    for (const name of ['Allura-Regular', 'ABeeZee-Regular']) {
+      this.emitFile({type: 'asset', fileName: `licenses/${name}-OFL.txt`, source: readFileSync(`assets/fonts/${name}-OFL.txt`, 'utf8')});
+    }
+  }
+});
+
 /**
  * Two shapes, because the eight themes are 420 KB of source and how they are
  * delivered is the whole question.
@@ -54,7 +63,7 @@ export default [
       // readable code is `src/`, one click away on GitHub.
       plugins: [terser({ format: { comments: 'some' } })]
     },
-    plugins: [substituteVersion()]
+    plugins: [substituteVersion(), fontLicences()]
   },
   {
     input: 'src/index.js',
@@ -83,6 +92,6 @@ export default [
         plugins: [terser({ format: { comments: 'some' } })]
       }
     ],
-    plugins: [substituteVersion()]
+    plugins: [substituteVersion(), fontLicences()]
   }
 ];

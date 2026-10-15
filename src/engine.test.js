@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Celebrations } from './core/engine.js';
 import { registerTheme, unregisterTheme } from './themes/index.js';
+import {launchMakeItRain} from './themes/rain-control.js';
 
 /**
  * jsdom has no 2D context, and `getContext()` returning null would take the
@@ -88,6 +89,48 @@ afterEach(() => {
 });
 
 describe('lifecycle', () => {
+  it('custom messages select a standalone greeting and survive intensity and resize changes', async () => {
+    instance = new Celebrations({message: 'Best wishes, Chloé, for {year}!', enabled: false, sparkler: {style: 'cursive', colour: 'silver', year: 2027}});
+    expect(await instance.init()).toBe(true);
+    expect(instance.currentTheme).toBe('greeting');
+    expect(instance.specialParticles.find(p => p.type === 'sparkler-message').message).toBe('Best wishes, Chloé, for 2027!');
+    instance.setIntensity('heavy');
+    expect(instance.specialParticles.find(p => p.type === 'sparkler-message').colour).toBe('silver');
+    window.dispatchEvent(new Event('resize'));
+    expect(instance.specialParticles.find(p => p.type === 'sparkler-message').message).toBe('Best wishes, Chloé, for 2027!');
+  });
+
+  it('standalone weather rain cleans up at the requested duration', async () => {
+    vi.useFakeTimers();
+    try {
+      instance = await launchMakeItRain(Celebrations, {enabled: false, duration: 1200});
+      expect(instance.currentTheme).toBe('make-it-rain');
+      expect(document.querySelector('canvas')).not.toBeNull();
+      await vi.advanceTimersByTimeAsync(1200);
+      expect(document.querySelector('canvas')).toBeNull();
+      expect(instance.initialized).toBe(false);
+    } finally {vi.useRealTimers();}
+  });
+
+  it('standalone rain respects reduced motion and can be explicitly continuous', async () => {
+    window.matchMedia = () => ({matches: true});
+    expect(await launchMakeItRain(Celebrations)).toBeNull();
+    instance = await launchMakeItRain(Celebrations, {enabled: false, duration: 0, respectMotionPreference: false});
+    expect(instance.initialized).toBe(true);
+    instance.destroy();
+    expect(document.querySelector('canvas')).toBeNull();
+  });
+  it('passes sparkler settings through seeding, intensity changes and resize reseeding', async () => {
+    instance = new Celebrations({theme: 'new-year', enabled: false, sparkler: {style: 'cursive', colour: 'silver', greeting: 'best-wishes', year: 2027}});
+    await instance.init();
+    const assertGreeting = () => {
+      const greeting = instance.specialParticles.find(p => p.type === 'sparkler-message');
+      expect(greeting.message).toBe('Best wishes for 2027!');
+      expect(greeting.style).toBe('cursive'); expect(greeting.colour).toBe('silver');
+    };
+    assertGreeting(); instance.setIntensity('heavy'); assertGreeting();
+    instance.resetParticles(); assertGreeting();
+  });
   it('builds a canvas and seeds the theme', async () => {
     const celebrations = build();
     expect(await celebrations.init()).toBe(true);
