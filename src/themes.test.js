@@ -49,7 +49,7 @@ describe('date ranges', () => {
 describe('current theme', () => {
   it.each([
     ['christmas', on(12, 25)],
-    ['christmas', on(1, 1)],
+    ['new-year', on(1, 1)],
     ['valentines', on(2, 14)],
     ['st-davids', on(3, 1)],
     ['st-patricks', on(3, 17)],
@@ -62,8 +62,8 @@ describe('current theme', () => {
   });
 
   it('is null on an ordinary day', () => {
-    expect(getCurrentTheme(on(7, 15))).toBeNull();
-    expect(isCelebrationSeason(on(7, 15))).toBe(false);
+    expect(getCurrentTheme(on(5, 15))).toBeNull();
+    expect(isCelebrationSeason(on(5, 15))).toBe(false);
   });
 
   it('leaves no gap between St Andrew\'s and Christmas', () => {
@@ -78,15 +78,15 @@ describe('registry', () => {
   it('accepts a runtime theme and drops it again', () => {
     registerTheme('midsummer', {
       displayName: 'Midsummer',
-      dates: [[6, 20], [6, 24]],
+      dates: [[5, 20], [5, 24]],
       module: { name: 'midsummer', intensityConfig: { medium: { count: 1 } } }
     });
 
-    expect(getCurrentTheme(on(6, 21))).toBe('midsummer');
+    expect(getCurrentTheme(on(5, 21))).toBe('midsummer');
     expect(getTheme('midsummer').displayName).toBe('Midsummer');
 
     unregisterTheme('midsummer');
-    expect(getCurrentTheme(on(6, 21))).toBeNull();
+    expect(getCurrentTheme(on(5, 21))).toBeNull();
   });
 
   it('rejects a definition with nothing to load', () => {
@@ -104,8 +104,8 @@ describe('registry', () => {
 describe('shipped themes', () => {
   const names = Object.keys(THEMES);
 
-  it('all eight are registered', () => {
-    expect(names).toHaveLength(8);
+  it('all twenty are registered', () => {
+    expect(names).toHaveLength(20);
     expect(getThemes()).toEqual(expect.objectContaining(THEMES));
   });
 

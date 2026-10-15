@@ -43,6 +43,9 @@ export class Celebrations {
    * @param {Object} [options.traits] - Per-decoration control, keyed by the
    *   trait names the theme publishes: `{ train: false, tree: 0.5 }`. `false`
    *   is off, a number is a density multiplier. See `getTraits()`
+   * @param {Object} [options.sparkler] - Greeting settings: style ('stroke' or
+   *   'cursive'), colour ('gold' or 'silver'), greeting ('default' or
+   *   'best-wishes'), and year (1-9999, defaults to the current year).
    * @param {number} [options.mobileReduction=0.5] - Particle-count multiplier
    *   applied below 768px. 1 disables the reduction
    * @param {boolean} [options.respectMotionPreference=true] - Do nothing when
@@ -52,12 +55,13 @@ export class Celebrations {
    */
   constructor(options = {}) {
     this.options = {
-      theme: options.theme || 'auto',
+      theme: options.theme || (options.message || options.sparkler?.message ? 'greeting' : 'auto'),
       intensity: INTENSITIES.includes(options.intensity) ? options.intensity : 'medium',
       enabled: options.enabled !== undefined ? options.enabled : true,
       zIndex: options.zIndex !== undefined ? options.zIndex : 999,
       container: options.container || null,
       traits: options.traits || {},
+      sparkler: {...(options.sparkler && typeof options.sparkler === 'object' ? options.sparkler : {}), ...(typeof options.message === 'string' ? {message: options.message} : {})},
       canvasId: options.canvasId || 'domma-celebrate-canvas',
       mobileReduction: options.mobileReduction !== undefined ? options.mobileReduction : 0.5,
       respectMotionPreference: options.respectMotionPreference !== false,
@@ -459,6 +463,7 @@ export class Celebrations {
    */
   async _loadTheme(requested) {
     let name = requested;
+    if (name === 'auto' && this.options.sparkler.message) name = 'greeting';
 
     if (name === 'auto') {
       name = getCurrentTheme();
@@ -477,6 +482,11 @@ export class Celebrations {
     try {
       const module = await descriptor.load();
       this.themeModule = module.default || module;
+      const message = this.options.sparkler.message || this.themeModule.defaultMessage;
+      if (message) {
+        const {prepareSparklerFont} = await import('../themes/sparkler-font.js');
+        await prepareSparklerFont(message);
+      }
       this.currentTheme = name;
       this._refreshTraits();
       return true;
@@ -531,6 +541,7 @@ export class Celebrations {
   /** @private */
   _refreshConfig() {
     this._effectiveConfig = applyTraitsToConfig(this._rawConfig(), this._traits);
+    this._effectiveConfig.sparkler = this.options.sparkler;
   }
 
   /**
