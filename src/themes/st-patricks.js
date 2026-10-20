@@ -1,3 +1,5 @@
+import {drawBanshee} from './spooky-props-drawing.js';
+import {drawPotOfGold, drawSmallGoldPot, drawRainbow} from './heritage-drawing.js';
 import {drawMooningLeprechaun} from './mooning-drawing.js';
 import {spawnMooningCharacter, updateMooningCharacter} from './mooning-antics.js';
 import {drawLeprechaun, drawStaticLeprechaun} from './character-drawing.js';
@@ -94,7 +96,7 @@ export default {
     const greenShades = ['#228B22', '#32CD32', '#90EE90', '#3CB371', '#2E8B57'];
     return {
       type: 'clover-petal',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]),  // Horizontal drift
       size: (config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0])) * 1.5,  // Larger petals
@@ -130,7 +132,7 @@ export default {
 
     return {
       type: 'shamrock',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]),  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]),
@@ -152,7 +154,7 @@ export default {
   createGoldCoin(canvasWidth, canvasHeight, config) {
     return {
       type: 'gold-coin',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.8,  // Horizontal drift
       size: 2 + Math.random() * 3,
@@ -219,7 +221,7 @@ export default {
     const colors = ['#FFD700', '#FFFFFF', '#228B22']; // Gold, white, green
     return {
       type: 'sparkle',
-      x: -20,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.8,  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]) * 0.6,
@@ -618,150 +620,16 @@ export default {
   /**
    * Draw pot of gold
    */
-  drawPotOfGold(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.translate(x, y);
-
-    // Pot (black cauldron)
-    ctx.fillStyle = '#1a1a1a';
-    ctx.strokeStyle = '#0a0a0a';
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.7, 0, Math.PI);
-    ctx.lineTo(-size * 0.7, size * 0.4);
-    ctx.quadraticCurveTo(0, size * 0.6, size * 0.7, size * 0.4);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Handle
-    ctx.strokeStyle = '#2a2a2a';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(0, -size * 0.2, size * 0.5, Math.PI, 0);
-    ctx.stroke();
-
-    // Gold coins overflowing
-    const coinPositions = [
-      {x: -size * 0.4, y: -size * 0.2, s: 0.8},
-      {x: size * 0.3, y: -size * 0.3, s: 0.9},
-      {x: -size * 0.1, y: -size * 0.5, s: 1.0},
-      {x: size * 0.5, y: -size * 0.1, s: 0.7},
-      {x: -size * 0.5, y: 0, s: 0.75},
-      {x: size * 0.1, y: -size * 0.6, s: 0.85},
-      {x: 0, y: -size * 0.3, s: 0.95}
-    ];
-
-    ctx.fillStyle = '#FFD700';
-    ctx.strokeStyle = '#DAA520';
-    ctx.lineWidth = 1;
-
-    coinPositions.forEach((coin, i) => {
-      const glintPhase = time * 0.002 + i * 0.5;
-      const glint = (Math.sin(glintPhase) + 1) * 0.5;
-
-      ctx.save();
-      ctx.translate(coin.x, coin.y);
-
-      // Coin
-      ctx.beginPath();
-      ctx.arc(0, 0, size * 0.2 * coin.s, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      // Glint
-      ctx.fillStyle = `rgba(255, 255, 255, ${glint * 0.6})`;
-      ctx.beginPath();
-      ctx.arc(-size * 0.08 * coin.s, -size * 0.08 * coin.s, size * 0.08 * coin.s, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.restore();
-    });
-
-    // Glow
-    ctx.globalAlpha = 0.3;
-    const glowGradient = ctx.createRadialGradient(0, -size * 0.2, 0, 0, -size * 0.2, size * 1.5);
-    glowGradient.addColorStop(0, '#FFD700');
-    glowGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
-    ctx.fillStyle = glowGradient;
-    ctx.fillRect(-size * 1.5, -size * 1.5, size * 3, size * 1.5);
-
-    ctx.restore();
-  },
+  drawPotOfGold,
 
   // Helper function to draw a small gold pot (similar to pot-of-gold but simpler)
-  drawSmallGoldPot(ctx, x, y, size) {
-    ctx.save();
-    ctx.translate(x, y);
-
-    // Pot (black cauldron)
-    ctx.fillStyle = '#1a1a1a';
-    ctx.strokeStyle = '#0a0a0a';
-    ctx.lineWidth = 1;
-
-    ctx.beginPath();
-    // Arc for the top of the pot
-    ctx.arc(0, -size * 0.4, size * 0.7, 0, Math.PI, true);
-    // Sides of the pot
-    ctx.lineTo(size * 0.7, size * 0.4);
-    ctx.quadraticCurveTo(0, size * 0.6, -size * 0.7, size * 0.4);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Gold coins overflowing (simple blob)
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(0, -size * 0.7, size * 0.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  },
+  drawSmallGoldPot,
 
 
   /**
    * Draw rainbow
    */
-  drawRainbow(ctx, particle) {
-    const startX = particle.startX;
-    const endX = particle.endX;
-    const endY = particle.endY;
-    const canvasHeight = particle.height;
-
-    ctx.save();
-    ctx.globalAlpha = 0.5;
-
-    const rainbowWidth = Math.abs(endX - startX);
-    const centerX = (startX + endX) / 2;
-    const rainbowHeight = canvasHeight * 0.2;
-
-    // Calculate radius and center Y for a circular arc
-    const radius = (rainbowWidth * rainbowWidth + 4 * rainbowHeight * rainbowHeight) / (8 * rainbowHeight);
-    const arcCenterY = endY + rainbowHeight - radius;
-
-    // Draw 7 rainbow bands from outer to inner
-    const colors = this.colors.rainbow;
-    const bandWidth = 5; // Smaller bands for the compact rainbow
-
-    for (let i = colors.length - 1; i >= 0; i--) {
-      ctx.strokeStyle = colors[i];
-      ctx.lineWidth = bandWidth;
-      ctx.beginPath();
-      ctx.arc(centerX, arcCenterY, radius + (colors.length - 1 - i) * bandWidth, Math.PI, 0);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-
-    // Draw single small gold pot at the right end
-    const potSize = 20;
-    this.drawSmallGoldPot(ctx, endX, endY, potSize);
-  },
+  drawRainbow,
 
   /**
    * Draw leprechaun
@@ -772,211 +640,7 @@ export default {
   /**
    * Draw banshee (flying ghostly figure)
    */
-  drawBanshee(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y + Math.sin(time * particle.waveFrequency + particle.waveOffset) * particle.waveAmplitude;
-    const size = particle.size;
-    const dir = particle.vx > 0 ? 1 : -1;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    if (dir === -1) {
-      ctx.scale(-1, 1);
-    }
-
-    // Intense ghostly aura (larger, more ethereal)
-    const aura = ctx.createRadialGradient(0, -size * 0.5, 0, 0, -size * 0.5, size * 3);
-    aura.addColorStop(0, 'rgba(180, 255, 180, 0.4)');
-    aura.addColorStop(0.3, 'rgba(150, 255, 150, 0.2)');
-    aura.addColorStop(0.6, 'rgba(120, 255, 120, 0.1)');
-    aura.addColorStop(1, 'rgba(100, 255, 100, 0)');
-    ctx.fillStyle = aura;
-    ctx.fillRect(-size * 3, -size * 3, size * 6, size * 6);
-
-    // Flowing tattered shroud (multiple layers for depth)
-    const shroudWave = Math.sin(time * 0.008 + particle.wailPhase) * size * 0.25;
-
-    // Back layer (darker, more transparent)
-    ctx.fillStyle = 'rgba(200, 240, 200, 0.3)';
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.8, -size * 1.2);
-    ctx.bezierCurveTo(
-      -size * 1.2 + shroudWave * 2, -size * 0.4,
-      -size * 1.0 + shroudWave * 1.5, size * 0.6,
-      -size * 0.6 + shroudWave, size * 1.8
-    );
-    ctx.bezierCurveTo(
-      -size * 0.3, size * 1.5,
-      size * 0.3, size * 1.5,
-      size * 0.6 - shroudWave, size * 1.8
-    );
-    ctx.bezierCurveTo(
-      size * 1.0 - shroudWave * 1.5, size * 0.6,
-      size * 1.2 - shroudWave * 2, -size * 0.4,
-      size * 0.8, -size * 1.2
-    );
-    ctx.closePath();
-    ctx.fill();
-
-    // Main shroud (brighter, more solid)
-    ctx.fillStyle = 'rgba(230, 255, 230, 0.85)';
-    ctx.strokeStyle = 'rgba(180, 255, 180, 0.6)';
-    ctx.lineWidth = size * 0.04;
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.5, -size * 1.0);
-    for (let i = 0; i <= 12; i++) {
-      const t = i / 12;
-      const waveOffset = Math.sin(time * 0.012 + t * Math.PI * 3 + particle.wailPhase) * size * 0.3;
-      const posX = (t - 0.5) * size * 1.8 + waveOffset;
-      const posY = -size * 1.0 + t * size * 2.2;
-
-      if (i === 0) {
-        ctx.moveTo(posX, posY);
-      } else {
-        ctx.lineTo(posX, posY);
-      }
-    }
-    ctx.lineTo(-size * 0.5, -size * 1.0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Tattered edges (vertical streaks)
-    ctx.strokeStyle = 'rgba(180, 255, 180, 0.4)';
-    ctx.lineWidth = size * 0.02;
-    for (let i = 0; i < 8; i++) {
-      const xPos = -size * 0.7 + i * (size * 1.4 / 7);
-      const streakWave = Math.sin(time * 0.015 + i * 0.8) * size * 0.2;
-      ctx.beginPath();
-      ctx.moveTo(xPos, size * 0.4);
-      ctx.lineTo(xPos + streakWave, size * 1.2 + (i % 2) * size * 0.4);
-      ctx.stroke();
-    }
-
-    // Gaunt head and elongated face
-    const headTilt = Math.sin(time * 0.006) * 0.15;
-    ctx.save();
-    ctx.rotate(headTilt);
-
-    // Head (very pale, almost translucent)
-    ctx.fillStyle = 'rgba(240, 255, 240, 0.9)';
-    ctx.strokeStyle = 'rgba(180, 230, 180, 0.5)';
-    ctx.lineWidth = size * 0.03;
-    ctx.beginPath();
-    ctx.ellipse(0, -size * 0.8, size * 0.35, size * 0.55, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Hollow, sunken eye sockets (dark green shadows)
-    ctx.fillStyle = 'rgba(50, 100, 50, 0.6)';
-    ctx.beginPath();
-    ctx.ellipse(-size * 0.15, -size * 0.85, size * 0.12, size * 0.08, 0, 0, Math.PI * 2);
-    ctx.ellipse(size * 0.15, -size * 0.85, size * 0.12, size * 0.08, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Intensely glowing eyes (pulsing bright green)
-    const eyePulse = 0.6 + Math.sin(time * 0.008 + particle.wailPhase) * 0.4;
-    ctx.fillStyle = `rgba(100, 255, 150, ${eyePulse})`;
-    ctx.shadowColor = '#64ff96';
-    ctx.shadowBlur = size * 0.6;
-    ctx.beginPath();
-    ctx.arc(-size * 0.15, -size * 0.85, size * 0.08, 0, Math.PI * 2);
-    ctx.arc(size * 0.15, -size * 0.85, size * 0.08, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // Gaping mouth (wailing/screaming - O shape)
-    const mouthOpen = 0.2 + Math.sin(time * 0.01 + particle.wailPhase) * 0.1;
-    ctx.fillStyle = 'rgba(80, 150, 80, 0.7)';
-    ctx.strokeStyle = 'rgba(50, 100, 50, 0.8)';
-    ctx.lineWidth = size * 0.02;
-    ctx.beginPath();
-    ctx.ellipse(0, -size * 0.6, size * 0.15, size * (0.2 + mouthOpen), 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.restore();
-
-    // Wild, flowing hair (very long, chaotic strands)
-    ctx.strokeStyle = 'rgba(220, 255, 220, 0.7)';
-    for (let i = 0; i < 12; i++) {
-      const hairX = -size * 0.35 + (i / 11) * size * 0.7;
-      const hairWave1 = Math.sin(time * 0.01 + i * 0.6 + particle.wailPhase) * size * 0.5;
-      const hairWave2 = Math.cos(time * 0.008 + i * 0.4) * size * 0.3;
-
-      ctx.lineWidth = size * (0.04 + (i % 3) * 0.02);
-      ctx.beginPath();
-      ctx.moveTo(hairX, -size * 1.1);
-      ctx.bezierCurveTo(
-        hairX + hairWave1 * 0.3, -size * 0.5,
-        hairX + hairWave1 * 0.6 + hairWave2 * 0.5, size * 0.2,
-        hairX + hairWave1 + hairWave2, size * 1.0 + (i % 2) * size * 0.5
-      );
-      ctx.stroke();
-    }
-
-    // Spectral hands reaching forward
-    const handReach = Math.sin(time * 0.01 + particle.wailPhase) * size * 0.3;
-
-    // Left hand
-    ctx.fillStyle = 'rgba(230, 255, 230, 0.8)';
-    ctx.strokeStyle = 'rgba(180, 230, 180, 0.6)';
-    ctx.lineWidth = size * 0.02;
-    ctx.save();
-    ctx.translate(-size * 0.6, -size * 0.2);
-    ctx.rotate(-0.3 + handReach * 0.002);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, size * 0.15, size * 0.25, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    // Fingers (skeletal)
-    for (let f = 0; f < 4; f++) {
-      const fingerX = -size * 0.08 + f * size * 0.055;
-      ctx.beginPath();
-      ctx.moveTo(fingerX, size * 0.15);
-      ctx.lineTo(fingerX, size * 0.35);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // Right hand
-    ctx.save();
-    ctx.translate(size * 0.6, -size * 0.2);
-    ctx.rotate(0.3 - handReach * 0.002);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, size * 0.15, size * 0.25, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    // Fingers
-    for (let f = 0; f < 4; f++) {
-      const fingerX = -size * 0.08 + f * size * 0.055;
-      ctx.beginPath();
-      ctx.moveTo(fingerX, size * 0.15);
-      ctx.lineTo(fingerX, size * 0.35);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // Ethereal wisps trailing behind
-    ctx.strokeStyle = 'rgba(180, 255, 180, 0.3)';
-    ctx.lineWidth = size * 0.02;
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2;
-      const wispWave = Math.sin(time * 0.01 + i * 0.8) * size * 0.6;
-      const wispLength = size * (1.5 + (i % 2) * 0.5);
-      ctx.beginPath();
-      ctx.moveTo(0, size * 0.4);
-      ctx.bezierCurveTo(
-        Math.cos(angle) * size * 0.8 + wispWave * 0.5, size * 1.0,
-        Math.cos(angle) * size * 1.5 + wispWave, size * 1.8,
-        Math.cos(angle) * wispLength + wispWave * 1.5, size * 2.5
-      );
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  },
+  drawBanshee,
 
   /**
    * Draw green moon

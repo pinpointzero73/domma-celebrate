@@ -1,3 +1,5 @@
+import {drawShield, drawStGeorgesCross} from './heritage-drawing.js';
+import {drawEnglishRose, drawTudorRose} from './botanical-drawing.js';
 import {drawKnight, drawDragon} from './character-drawing.js';
 
 /**
@@ -95,7 +97,7 @@ export default {
 
     return {
       type: 'rose-petal',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]),  // Horizontal drift
       size: (config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0])) * 1.5,  // Larger petals
@@ -118,7 +120,7 @@ export default {
   createTudorRose(canvasWidth, canvasHeight, config) {
     return {
       type: 'tudor-rose',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]),  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]),
@@ -149,7 +151,7 @@ export default {
 
     return {
       type: 'oak-leaf',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.8,  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]),
@@ -173,7 +175,7 @@ export default {
     const colors = ['#FFD700', '#FFFFFF', '#C8102E']; // Gold, white, red
     return {
       type: 'sparkle',
-      x: -20,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.8,  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]) * 0.6,
@@ -351,10 +353,10 @@ export default {
       static: true
     });
 
-    // St George's Cross flags on castle
+    // Separate St George's Cross flag beside the castle
     decorations.push(this.createStGeorgesCross(canvasWidth, canvasHeight, {
-      x: 150,
-      y: canvasHeight - 180,
+      x: 55,
+      y: canvasHeight - 190,
       size: 30
     }));
 
@@ -498,288 +500,12 @@ export default {
   /**
    * Draw English rose (blooming flower)
    */
-  drawEnglishRose(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-    const bloom = 0.8 + (Math.sin(time * 0.002 + particle.bloomPhase) + 1) * 0.1;
-
-    ctx.save();
-    ctx.translate(x, y);
-
-    // Stem
-    ctx.strokeStyle = this.colors.greenStem;
-    ctx.lineWidth = size * 0.12;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.quadraticCurveTo(
-      -size * 0.2, size * 0.8,
-      0, size * 1.5
-    );
-    ctx.stroke();
-
-    // Leaves
-    ctx.fillStyle = '#2D5016';
-    [-1, 1].forEach(side => {
-      ctx.save();
-      ctx.translate(side * size * 0.15, size * 0.8);
-      ctx.rotate(side * Math.PI / 6);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, size * 0.3, size * 0.15, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    });
-
-    // Rose petals (layered circular pattern)
-    ctx.fillStyle = particle.color;
-    ctx.strokeStyle = particle.color === '#FFFFFF' ? '#FFE6E6' : '#8B0000';
-    ctx.lineWidth = 1;
-
-    // Outer layer
-    for (let i = 0; i < particle.petalCount; i++) {
-      const angle = (i / particle.petalCount) * Math.PI * 2;
-      ctx.save();
-      ctx.rotate(angle);
-      ctx.translate(0, -size * 0.4 * bloom);
-
-      ctx.beginPath();
-      ctx.moveTo(0, size * 0.25);
-      ctx.bezierCurveTo(
-        -size * 0.25, -size * 0.1,
-        -size * 0.15, -size * 0.35,
-        0, -size * 0.25
-      );
-      ctx.bezierCurveTo(
-        size * 0.15, -size * 0.35,
-        size * 0.25, -size * 0.1,
-        0, size * 0.25
-      );
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    // Inner layer (offset rotation)
-    ctx.globalAlpha = 0.9;
-    for (let i = 0; i < particle.petalCount - 2; i++) {
-      const angle = (i / (particle.petalCount - 2)) * Math.PI * 2 + (Math.PI / particle.petalCount);
-      ctx.save();
-      ctx.rotate(angle);
-      ctx.translate(0, -size * 0.25 * bloom);
-
-      ctx.beginPath();
-      ctx.moveTo(0, size * 0.15);
-      ctx.bezierCurveTo(
-        -size * 0.15, -size * 0.05,
-        -size * 0.1, -size * 0.2,
-        0, -size * 0.15
-      );
-      ctx.bezierCurveTo(
-        size * 0.1, -size * 0.2,
-        size * 0.15, -size * 0.05,
-        0, size * 0.15
-      );
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    // Center (yellow stamens)
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.15 * bloom, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Stamen dots
-    ctx.fillStyle = '#FFA500';
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const distance = size * 0.08 * bloom;
-      ctx.beginPath();
-      ctx.arc(
-        Math.cos(angle) * distance,
-        Math.sin(angle) * distance,
-        size * 0.03,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-    }
-
-    ctx.restore();
-  },
+  drawEnglishRose,
 
   /**
    * Draw St George's Cross flag (redesigned)
    */
-  drawStGeorgesCross(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-    const waveOffset = time * particle.waveSpeed + particle.waveOffset;
-
-    ctx.save();
-    ctx.translate(x, y);
-
-    // ===== FLAGPOLE (wooden with grain detail) =====
-    const poleGradient = ctx.createLinearGradient(-size * 0.64, 0, -size * 0.56, 0);
-    poleGradient.addColorStop(0, '#5a4a3a');
-    poleGradient.addColorStop(0.5, '#8B4513');
-    poleGradient.addColorStop(1, '#6a5343');
-    ctx.fillStyle = poleGradient;
-    ctx.fillRect(-size * 0.64, -size * 0.35, size * 0.08, size * 1.9);
-
-    // Pole edge highlight
-    ctx.strokeStyle = '#9a6333';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.64, -size * 0.35);
-    ctx.lineTo(-size * 0.64, size * 1.55);
-    ctx.stroke();
-
-    // Pole shadow
-    ctx.strokeStyle = '#3a2a1a';
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.56, -size * 0.35);
-    ctx.lineTo(-size * 0.56, size * 1.55);
-    ctx.stroke();
-
-    // Gold finial (decorative top)
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(-size * 0.6, -size * 0.4, size * 0.06, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#DAA520';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // ===== FLAG FABRIC (smooth wave, proper cross) =====
-    const flagWidth = size * 1.5;
-    const flagHeight = size * 1.0;
-    const verticalStripes = 12; // More stripes for smoother wave
-
-    // Draw flag in vertical strips with wave displacement
-    for (let i = 0; i < verticalStripes; i++) {
-      const stripX = -size * 0.5 + (i / verticalStripes) * flagWidth;
-      const nextStripX = -size * 0.5 + ((i + 1) / verticalStripes) * flagWidth;
-      const stripWidth = nextStripX - stripX;
-
-      // Wave calculation for this strip
-      const wave = Math.sin(waveOffset + i * 0.4) * size * 0.12;
-      const nextWave = Math.sin(waveOffset + (i + 1) * 0.4) * size * 0.12;
-
-      // Calculate if this strip is in the cross area
-      const stripCenter = stripX + stripWidth / 2 + size * 0.5;
-      const normalizedX = stripCenter / flagWidth; // 0 to 1
-
-      const isVerticalBar = normalizedX > 0.4 && normalizedX < 0.6;
-
-      ctx.save();
-
-      // ===== WHITE BACKGROUND STRIP =====
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.moveTo(stripX, -flagHeight / 2 + wave);
-      ctx.lineTo(nextStripX, -flagHeight / 2 + nextWave);
-      ctx.lineTo(nextStripX, flagHeight / 2 + nextWave);
-      ctx.lineTo(stripX, flagHeight / 2 + wave);
-      ctx.closePath();
-      ctx.fill();
-
-      // ===== RED CROSS STRIPS =====
-      ctx.fillStyle = '#C8102E';
-
-      // Vertical bar of cross (center strip)
-      if (isVerticalBar) {
-        ctx.beginPath();
-        ctx.moveTo(stripX, -flagHeight / 2 + wave);
-        ctx.lineTo(nextStripX, -flagHeight / 2 + nextWave);
-        ctx.lineTo(nextStripX, flagHeight / 2 + nextWave);
-        ctx.lineTo(stripX, flagHeight / 2 + wave);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // Horizontal bar of cross (middle section of each strip)
-      ctx.beginPath();
-      ctx.moveTo(stripX, -flagHeight * 0.15 + wave);
-      ctx.lineTo(nextStripX, -flagHeight * 0.15 + nextWave);
-      ctx.lineTo(nextStripX, flagHeight * 0.15 + nextWave);
-      ctx.lineTo(stripX, flagHeight * 0.15 + wave);
-      ctx.closePath();
-      ctx.fill();
-
-      // ===== FABRIC SHADING (alternating for depth) =====
-      const shade = Math.sin(waveOffset + i * 0.4) * 0.15;
-      if (shade > 0) {
-        ctx.fillStyle = `rgba(255, 255, 255, ${shade * 0.3})`;
-      } else {
-        ctx.fillStyle = `rgba(0, 0, 0, ${-shade * 0.2})`;
-      }
-      ctx.beginPath();
-      ctx.moveTo(stripX, -flagHeight / 2 + wave);
-      ctx.lineTo(nextStripX, -flagHeight / 2 + nextWave);
-      ctx.lineTo(nextStripX, flagHeight / 2 + nextWave);
-      ctx.lineTo(stripX, flagHeight / 2 + wave);
-      ctx.closePath();
-      ctx.fill();
-
-      // Strip edge line (fabric texture)
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(nextStripX, -flagHeight / 2 + nextWave);
-      ctx.lineTo(nextStripX, flagHeight / 2 + nextWave);
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    // ===== FLAG BORDER (subtle outline) =====
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    // Top edge
-    ctx.moveTo(-size * 0.5, -flagHeight / 2 + Math.sin(waveOffset) * size * 0.12);
-    for (let i = 1; i <= verticalStripes; i++) {
-      const stripX = -size * 0.5 + (i / verticalStripes) * flagWidth;
-      const wave = Math.sin(waveOffset + i * 0.4) * size * 0.12;
-      ctx.lineTo(stripX, -flagHeight / 2 + wave);
-    }
-    // Right edge
-    ctx.lineTo(
-      -size * 0.5 + flagWidth,
-      flagHeight / 2 + Math.sin(waveOffset + verticalStripes * 0.4) * size * 0.12
-    );
-    // Bottom edge
-    for (let i = verticalStripes; i >= 0; i--) {
-      const stripX = -size * 0.5 + (i / verticalStripes) * flagWidth;
-      const wave = Math.sin(waveOffset + i * 0.4) * size * 0.12;
-      ctx.lineTo(stripX, flagHeight / 2 + wave);
-    }
-    // Left edge (back to pole)
-    ctx.closePath();
-    ctx.stroke();
-
-    // ===== HOIST ATTACHMENT (flag grommets) =====
-    ctx.fillStyle = '#A9A9A9'; // Metal grommets
-    for (let i = 0; i < 3; i++) {
-      const yPos = -flagHeight / 2 + (i / 2) * flagHeight;
-      const wave = Math.sin(waveOffset) * size * 0.12;
-      ctx.beginPath();
-      ctx.arc(-size * 0.48, yPos + wave, size * 0.03, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#696969';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  },
+  drawStGeorgesCross,
 
   /**
    * Draw knight (St George)
@@ -794,437 +520,201 @@ export default {
   /**
    * Draw shield with St George's Cross
    */
-  drawShield(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-    const glint = (Math.sin(time * 0.003 + particle.glintPhase) + 1) * 0.5;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Shield outline (kite shield shape)
-    ctx.fillStyle = '#FFFFFF';
-    ctx.strokeStyle = '#FFD700';
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 0.7);
-    ctx.lineTo(size * 0.5, -size * 0.5);
-    ctx.lineTo(size * 0.5, size * 0.3);
-    ctx.lineTo(0, size * 0.7);
-    ctx.lineTo(-size * 0.5, size * 0.3);
-    ctx.lineTo(-size * 0.5, -size * 0.5);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // St George's Cross
-    ctx.fillStyle = '#C8102E';
-    // Vertical bar
-    ctx.fillRect(-size * 0.1, -size * 0.6, size * 0.2, size * 1.2);
-    // Horizontal bar
-    ctx.fillRect(-size * 0.45, -size * 0.1, size * 0.9, size * 0.2);
-
-    // Metallic edge highlights
-    ctx.strokeStyle = `rgba(255, 215, 0, ${glint * 0.8})`;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(0, -size * 0.7);
-    ctx.lineTo(size * 0.5, -size * 0.5);
-    ctx.lineTo(size * 0.5, size * 0.3);
-    ctx.stroke();
-
-    // Central boss (decorative)
-    ctx.fillStyle = '#FFD700';
-    ctx.strokeStyle = '#DAA520';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.15, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Glint on boss
-    ctx.fillStyle = `rgba(255, 255, 255, ${glint * 0.6})`;
-    ctx.beginPath();
-    ctx.arc(-size * 0.05, -size * 0.05, size * 0.06, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  },
+  drawShield,
 
   /**
-   * Draw English medieval castle (redesigned for visual impact)
+   * Draw a limestone gatehouse with drum towers and a raised central keep.
+   * Geometry uses a 100-unit grid so outlines and masonry scale together.
    */
   drawCastle(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
+    if (!Number.isFinite(particle.size) || particle.size <= 0) return;
 
     ctx.save();
     ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
+    ctx.translate(particle.x, particle.y);
+    ctx.scale(particle.size / 100, particle.size / 100);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
 
-    // Define stone colors
-    const stoneBase = '#9a958f';
-    const stoneDark = '#6a655f';
-    const stoneShadow = '#4a4540';
-    const stoneHighlight = '#b5b0aa';
-
-    // ===== MAIN KEEP (central rectangular tower) =====
-    const keepWidth = size * 1.4;
-    const keepHeight = size * 1.0;
-
-    // Keep shadow (depth)
-    ctx.fillStyle = stoneShadow;
-    ctx.fillRect(-keepWidth / 2 + size * 0.05, -keepHeight + size * 0.05, keepWidth, keepHeight);
-
-    // Keep base
-    const keepGradient = ctx.createLinearGradient(-keepWidth / 2, -keepHeight, keepWidth / 2, -keepHeight);
-    keepGradient.addColorStop(0, stoneDark);
-    keepGradient.addColorStop(0.5, stoneBase);
-    keepGradient.addColorStop(1, stoneDark);
-    ctx.fillStyle = keepGradient;
-    ctx.fillRect(-keepWidth / 2, -keepHeight, keepWidth, keepHeight);
-
-    // Keep outline
-    ctx.strokeStyle = stoneShadow;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-keepWidth / 2, -keepHeight, keepWidth, keepHeight);
-
-    // Detailed stone blocks on keep
-    ctx.strokeStyle = 'rgba(74, 69, 64, 0.4)';
-    ctx.lineWidth = 1;
-    const blockHeight = size * 0.12;
-    const blockWidth = size * 0.18;
-    for (let row = 0; row < 8; row++) {
-      const yPos = -keepHeight + row * blockHeight;
-      const offset = (row % 2) * (blockWidth / 2); // Staggered bricks
-      for (let col = 0; col < 8; col++) {
-        const xPos = -keepWidth / 2 + col * blockWidth + offset;
-        ctx.strokeRect(xPos, yPos, blockWidth, blockHeight);
-      }
-    }
-
-    // Keep battlements (larger, more detailed)
-    ctx.fillStyle = stoneBase;
-    const battlementWidth = size * 0.15;
-    const battlementHeight = size * 0.12;
-    for (let i = 0; i < 9; i++) {
-      if (i % 2 === 0) {
-        const xPos = -keepWidth / 2 + i * (keepWidth / 8);
-        // Merlon (raised part)
-        ctx.fillRect(xPos, -keepHeight - battlementHeight, battlementWidth, battlementHeight);
-        ctx.strokeRect(xPos, -keepHeight - battlementHeight, battlementWidth, battlementHeight);
-        // Arrow slit in merlon
-        ctx.fillStyle = stoneShadow;
-        ctx.fillRect(xPos + battlementWidth / 2 - size * 0.015, -keepHeight - battlementHeight + size * 0.02, size * 0.03, battlementHeight - size * 0.04);
-        ctx.fillStyle = stoneBase;
-      }
-    }
-
-    // ===== LEFT TOWER (round, larger) =====
-    const towerRadius = size * 0.22;
-    const towerHeight = size * 1.2;
-    const leftTowerX = -size * 0.85;
-    const leftTowerY = -towerHeight / 2;
-
-    // Tower shadow
-    ctx.fillStyle = stoneShadow;
-    ctx.beginPath();
-    ctx.ellipse(leftTowerX + size * 0.03, leftTowerY + size * 0.03, towerRadius, towerHeight / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Tower body with gradient
-    const leftTowerGradient = ctx.createRadialGradient(leftTowerX - towerRadius * 0.3, leftTowerY, 0, leftTowerX, leftTowerY, towerRadius);
-    leftTowerGradient.addColorStop(0, stoneHighlight);
-    leftTowerGradient.addColorStop(0.5, stoneBase);
-    leftTowerGradient.addColorStop(1, stoneDark);
-    ctx.fillStyle = leftTowerGradient;
-    ctx.beginPath();
-    ctx.ellipse(leftTowerX, leftTowerY, towerRadius, towerHeight / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = stoneShadow;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Tower battlements (conical top)
-    ctx.fillStyle = stoneBase;
-    for (let i = 0; i < 6; i++) {
-      if (i % 2 === 0) {
-        const angle = (i / 6) * Math.PI;
-        const xOffset = Math.cos(angle) * towerRadius;
-        ctx.fillRect(leftTowerX + xOffset - size * 0.06, -towerHeight - size * 0.1, size * 0.12, size * 0.1);
-        ctx.strokeRect(leftTowerX + xOffset - size * 0.06, -towerHeight - size * 0.1, size * 0.12, size * 0.1);
-      }
-    }
-
-    // Tower windows (arrow slits)
-    ctx.fillStyle = '#1a1510';
-    for (let i = 0; i < 3; i++) {
-      const yWin = leftTowerY - towerHeight * 0.2 + i * towerHeight * 0.25;
-      ctx.fillRect(leftTowerX - size * 0.02, yWin, size * 0.04, size * 0.15);
-      // Splay at bottom (wider inside)
+    const outline = '#4c514e';
+    const stone = (left, right) => {
+      const gradient = ctx.createLinearGradient(left, 0, right, 0);
+      gradient.addColorStop(0, '#a69e88');
+      gradient.addColorStop(0.28, '#e0d6bb');
+      gradient.addColorStop(0.62, '#c5bba1');
+      gradient.addColorStop(1, '#8c8b7c');
+      return gradient;
+    };
+    const path = (points, fill) => {
       ctx.beginPath();
-      ctx.moveTo(leftTowerX - size * 0.02, yWin + size * 0.15);
-      ctx.lineTo(leftTowerX - size * 0.06, yWin + size * 0.18);
-      ctx.lineTo(leftTowerX + size * 0.06, yWin + size * 0.18);
-      ctx.lineTo(leftTowerX + size * 0.02, yWin + size * 0.15);
+      points.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+      ctx.closePath();
+      ctx.fillStyle = fill;
       ctx.fill();
-    }
-
-    // ===== RIGHT TOWER (round, larger) =====
-    const rightTowerX = size * 0.85;
-
-    // Tower shadow
-    ctx.fillStyle = stoneShadow;
-    ctx.beginPath();
-    ctx.ellipse(rightTowerX + size * 0.03, leftTowerY + size * 0.03, towerRadius, towerHeight / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Tower body with gradient
-    const rightTowerGradient = ctx.createRadialGradient(rightTowerX + towerRadius * 0.3, leftTowerY, 0, rightTowerX, leftTowerY, towerRadius);
-    rightTowerGradient.addColorStop(0, stoneHighlight);
-    rightTowerGradient.addColorStop(0.5, stoneBase);
-    rightTowerGradient.addColorStop(1, stoneDark);
-    ctx.fillStyle = rightTowerGradient;
-    ctx.beginPath();
-    ctx.ellipse(rightTowerX, leftTowerY, towerRadius, towerHeight / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = stoneShadow;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Tower battlements
-    ctx.fillStyle = stoneBase;
-    for (let i = 0; i < 6; i++) {
-      if (i % 2 === 0) {
-        const angle = (i / 6) * Math.PI;
-        const xOffset = Math.cos(angle) * towerRadius;
-        ctx.fillRect(rightTowerX + xOffset - size * 0.06, -towerHeight - size * 0.1, size * 0.12, size * 0.1);
-        ctx.strokeRect(rightTowerX + xOffset - size * 0.06, -towerHeight - size * 0.1, size * 0.12, size * 0.1);
+      ctx.strokeStyle = outline;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    };
+    // One continuous parapet contour keeps the merlons attached to the wall.
+    const battlements = (left, top, width, bottom, count, fill) => {
+      const step = width / (count * 2 - 1);
+      const points = [[left, bottom], [left, top]];
+      for (let i = 0; i < count * 2 - 1; i++) {
+        const x = left + (i + 1) * step;
+        const y = top + (i % 2 ? 9 : 0);
+        points.push([x, y]);
+        if (i < count * 2 - 2) points.push([x, top + (i % 2 ? 0 : 9)]);
       }
-    }
-
-    // Tower windows
-    ctx.fillStyle = '#1a1510';
-    for (let i = 0; i < 3; i++) {
-      const yWin = leftTowerY - towerHeight * 0.2 + i * towerHeight * 0.25;
-      ctx.fillRect(rightTowerX - size * 0.02, yWin, size * 0.04, size * 0.15);
+      points.push([left + width, bottom]);
+      path(points, fill);
+    };
+    const masonry = (left, top, width, bottom) => {
+      ctx.save();
       ctx.beginPath();
-      ctx.moveTo(rightTowerX - size * 0.02, yWin + size * 0.15);
-      ctx.lineTo(rightTowerX - size * 0.06, yWin + size * 0.18);
-      ctx.lineTo(rightTowerX + size * 0.06, yWin + size * 0.18);
-      ctx.lineTo(rightTowerX + size * 0.02, yWin + size * 0.15);
+      ctx.rect(left, top, width, bottom - top);
+      ctx.clip();
+      ctx.strokeStyle = 'rgba(88, 82, 66, 0.23)';
+      ctx.lineWidth = 0.7;
+      for (let row = 0, y = top; y < bottom; row++, y += 12) {
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(left + width, y);
+        for (let x = left + (row % 2 ? -9 : 3); x < left + width; x += 21) {
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, y + 12);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    };
+    const arch = (x, bottom, width, spring, fill) => {
+      ctx.beginPath();
+      ctx.moveTo(x - width, bottom);
+      ctx.lineTo(x - width, spring);
+      ctx.arc(x, spring, width, Math.PI, Math.PI * 2);
+      ctx.lineTo(x + width, bottom);
+      ctx.closePath();
+      ctx.fillStyle = fill;
       ctx.fill();
-    }
+    };
+    const window = (x, y) => {
+      arch(x, y + 15, 4, y + 4, '#666857');
+      arch(x, y + 14, 2.3, y + 4, '#303b3b');
+      ctx.fillStyle = '#e8dfc6';
+      ctx.fillRect(x - 5, y + 15, 10, 1.5);
+    };
 
-    // ===== GATEWAY (impressive arched entrance) =====
-    const gateWidth = size * 0.35;
-    const gateHeight = size * 0.5;
-
-    // Gateway arch recess (depth)
-    ctx.fillStyle = stoneShadow;
+    // A low stone footing and soft contact shadow ground the silhouette.
+    ctx.fillStyle = 'rgba(24, 34, 31, 0.18)';
     ctx.beginPath();
-    ctx.moveTo(-gateWidth, -size * 0.05);
-    ctx.lineTo(-gateWidth, -gateHeight);
-    ctx.arc(0, -gateHeight, gateWidth, Math.PI, 0, false);
-    ctx.lineTo(gateWidth, -size * 0.05);
-    ctx.closePath();
+    ctx.ellipse(0, 5, 116, 9, 0, 0, Math.PI * 2);
     ctx.fill();
+    path([[-109, 1], [-104, -7], [104, -7], [109, 1]], '#8c917c');
 
-    // Gateway arch surround (stonework)
-    ctx.strokeStyle = stoneDark;
-    ctx.lineWidth = size * 0.06;
-    ctx.beginPath();
-    ctx.arc(0, -gateHeight, gateWidth - size * 0.03, Math.PI, 0, false);
-    ctx.stroke();
+    // The keep sits behind the lower curtain wall and the two front towers.
+    battlements(-42, -137, 84, -37, 5, stone(-42, 42));
+    masonry(-41, -122, 82, -37);
+    ctx.fillStyle = '#ede3c9';
+    ctx.fillRect(-42, -123, 84, 3);
+    ctx.fillStyle = 'rgba(72, 77, 66, 0.22)';
+    ctx.fillRect(-42, -120, 84, 4);
+    window(-22, -110);
+    window(22, -110);
+    window(0, -76);
 
-    // Decorative voussoirs (arch stones)
-    ctx.strokeStyle = 'rgba(74, 69, 64, 0.6)';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 9; i++) {
-      const angle = Math.PI + (i / 8) * Math.PI;
+    battlements(-81, -78, 162, 0, 9, stone(-81, 81));
+    masonry(-80, -63, 160, -2);
+    ctx.fillStyle = '#e7ddc4';
+    ctx.fillRect(-81, -64, 162, 3);
+    ctx.fillStyle = 'rgba(72, 77, 66, 0.2)';
+    ctx.fillRect(-81, -61, 162, 4);
+
+    // Recessed gate with individual arch stones and a clipped iron portcullis.
+    arch(0, -1, 25, -35, '#a29980');
+    ctx.strokeStyle = '#716f60';
+    ctx.lineWidth = 0.9;
+    for (let i = 0; i <= 9; i++) {
+      const angle = Math.PI + i * Math.PI / 9;
       ctx.beginPath();
-      ctx.moveTo(0, -gateHeight);
-      ctx.lineTo(Math.cos(angle) * gateWidth, -gateHeight + Math.sin(angle) * gateWidth);
+      ctx.moveTo(Math.cos(angle) * 20, -35 + Math.sin(angle) * 20);
+      ctx.lineTo(Math.cos(angle) * 25, -35 + Math.sin(angle) * 25);
       ctx.stroke();
     }
-
-    // Gateway opening (dark)
-    ctx.fillStyle = '#0a0a08';
-    ctx.beginPath();
-    ctx.moveTo(-gateWidth + size * 0.1, -size * 0.05);
-    ctx.lineTo(-gateWidth + size * 0.1, -gateHeight + size * 0.05);
-    ctx.arc(0, -gateHeight + size * 0.05, gateWidth - size * 0.1, Math.PI, 0, false);
-    ctx.lineTo(gateWidth - size * 0.1, -size * 0.05);
-    ctx.closePath();
-    ctx.fill();
-
-    // Portcullis (heavy iron bars)
-    ctx.strokeStyle = '#2a2520';
-    ctx.lineWidth = 4;
-    const barCount = 7;
-    for (let i = 0; i < barCount; i++) {
-      const xBar = -gateWidth + size * 0.15 + (i / (barCount - 1)) * (gateWidth * 2 - size * 0.3);
-      ctx.beginPath();
-      ctx.moveTo(xBar, -size * 0.05);
-      ctx.lineTo(xBar, -gateHeight + size * 0.15);
-      ctx.stroke();
-    }
-    // Horizontal bars
-    ctx.lineWidth = 3;
-    for (let i = 0; i < 4; i++) {
-      const yBar = -size * 0.1 - i * size * 0.12;
-      ctx.beginPath();
-      ctx.moveTo(-gateWidth + size * 0.15, yBar);
-      ctx.lineTo(gateWidth - size * 0.15, yBar);
-      ctx.stroke();
-    }
-
-    // ===== BUTTRESSES (structural supports) =====
-    ctx.fillStyle = stoneDark;
-    // Left buttress
-    ctx.beginPath();
-    ctx.moveTo(-keepWidth / 2, 0);
-    ctx.lineTo(-keepWidth / 2 - size * 0.08, 0);
-    ctx.lineTo(-keepWidth / 2 - size * 0.05, -keepHeight * 0.6);
-    ctx.lineTo(-keepWidth / 2, -keepHeight * 0.6);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = stoneShadow;
-    ctx.stroke();
-
-    // Right buttress
-    ctx.beginPath();
-    ctx.moveTo(keepWidth / 2, 0);
-    ctx.lineTo(keepWidth / 2 + size * 0.08, 0);
-    ctx.lineTo(keepWidth / 2 + size * 0.05, -keepHeight * 0.6);
-    ctx.lineTo(keepWidth / 2, -keepHeight * 0.6);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // ===== ST GEORGE'S CROSS FLAG =====
+    arch(0, 0, 19, -35, '#263334');
     ctx.save();
-    ctx.translate(0, -towerHeight - size * 0.15);
-
-    // Flagpole (wooden)
-    const poleGradient = ctx.createLinearGradient(-size * 0.02, 0, size * 0.02, 0);
-    poleGradient.addColorStop(0, '#5a4a3a');
-    poleGradient.addColorStop(0.5, '#8b7355');
-    poleGradient.addColorStop(1, '#5a4a3a');
-    ctx.fillStyle = poleGradient;
-    ctx.fillRect(-size * 0.02, 0, size * 0.04, -size * 0.45);
-    ctx.strokeStyle = '#3a2a1a';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(-size * 0.02, 0, size * 0.04, -size * 0.45);
-
-    // Gold finial (decorative top)
-    ctx.fillStyle = '#FFD700';
+    ctx.clip();
+    ctx.fillStyle = '#46504a';
+    ctx.fillRect(-19, -7, 38, 7);
+    ctx.strokeStyle = '#92907b';
+    ctx.lineWidth = 1.7;
     ctx.beginPath();
-    ctx.arc(0, -size * 0.45, size * 0.04, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#DAA520';
+    for (let x = -15; x <= 15; x += 6) {
+      ctx.moveTo(x, -56);
+      ctx.lineTo(x, -9);
+    }
+    for (let y = -47; y <= -12; y += 9) {
+      ctx.moveTo(-19, y);
+      ctx.lineTo(19, y);
+    }
     ctx.stroke();
-
-    // Flag (white with red St George's cross)
-    const flagWidth = size * 0.4;
-    const flagHeight = size * 0.25;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, -size * 0.42, flagWidth, flagHeight);
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-    ctx.strokeRect(0, -size * 0.42, flagWidth, flagHeight);
-
-    // Red cross (St George)
-    ctx.fillStyle = '#C8102E';
-    // Vertical bar
-    ctx.fillRect(flagWidth * 0.4, -size * 0.42, flagWidth * 0.2, flagHeight);
-    // Horizontal bar
-    ctx.fillRect(0, -size * 0.42 + flagHeight * 0.4, flagWidth, flagHeight * 0.2);
-
     ctx.restore();
+    path([[-22, 0], [-28, 5], [28, 5], [22, 0]], '#d3c6a6');
 
+    for (const x of [-80, 80]) {
+      // Straight shafts with curved feet read as solid cylindrical towers.
+      ctx.beginPath();
+      ctx.moveTo(x - 24, -101);
+      ctx.lineTo(x + 24, -101);
+      ctx.lineTo(x + 24, -5);
+      ctx.quadraticCurveTo(x, 4, x - 24, -5);
+      ctx.closePath();
+      ctx.fillStyle = stone(x - 24, x + 24);
+      ctx.fill();
+      ctx.strokeStyle = outline;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      masonry(x - 23, -98, 46, -7);
+      battlements(x - 27, -118, 54, -98, 4, stone(x - 27, x + 27));
+      ctx.fillStyle = '#eee3c8';
+      ctx.fillRect(x - 27, -100, 54, 3);
+      ctx.fillStyle = 'rgba(72, 77, 66, 0.24)';
+      ctx.fillRect(x - 24, -97, 48, 4);
+      window(x, -85);
+      window(x, -49);
+      ctx.strokeStyle = '#8c8976';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(x - 23, -11);
+      ctx.quadraticCurveTo(x, -4, x + 23, -11);
+      ctx.stroke();
+    }
+
+    // A small folded St George's flag crowns the keep.
+    ctx.strokeStyle = '#68624f';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -138);
+    ctx.lineTo(0, -185);
+    ctx.stroke();
+    const flag = [[2, -182], [18, -180], [38, -183], [38, -159], [18, -156], [2, -158]];
+    path(flag, '#fff9e9');
+    ctx.save();
+    ctx.clip();
+    ctx.fillStyle = '#b92435';
+    ctx.fillRect(14, -185, 6, 32);
+    path([[2, -173], [18, -171], [38, -174], [38, -168], [18, -165], [2, -167]], '#b92435');
+    ctx.restore();
+    ctx.fillStyle = '#d9b56b';
+    ctx.beginPath();
+    ctx.arc(0, -186, 2.5, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   },
 
   /**
    * Draw Tudor Rose (iconic English rose with 5 petals, red outer/white inner)
    */
-  drawTudorRose(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Outer petals (red) - 5 petals
-    ctx.fillStyle = '#C8102E';
-    ctx.strokeStyle = '#8B0000';
-    ctx.lineWidth = size * 0.05;
-
-    for (let i = 0; i < 5; i++) {
-      const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
-      ctx.save();
-      ctx.rotate(angle);
-
-      // Heart-shaped petal
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.bezierCurveTo(-size * 0.5, -size * 0.4, -size * 0.6, -size * 0.8, 0, -size * 1.2);
-      ctx.bezierCurveTo(size * 0.6, -size * 0.8, size * 0.5, -size * 0.4, 0, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    // Inner petals (white) - 5 petals, offset
-    ctx.fillStyle = '#FFFFFF';
-    ctx.strokeStyle = '#E0E0E0';
-    for (let i = 0; i < 5; i++) {
-      const angle = (i / 5) * Math.PI * 2 - Math.PI / 2 + Math.PI / 5;
-      ctx.save();
-      ctx.rotate(angle);
-
-      // Smaller heart-shaped petal
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.bezierCurveTo(-size * 0.3, -size * 0.25, -size * 0.35, -size * 0.5, 0, -size * 0.7);
-      ctx.bezierCurveTo(size * 0.35, -size * 0.5, size * 0.3, -size * 0.25, 0, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    // Golden center
-    ctx.fillStyle = '#FFD700';
-    ctx.strokeStyle = '#DAA520';
-    ctx.lineWidth = size * 0.05;
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Stamens
-    ctx.fillStyle = '#FFA500';
-    for (let i = 0; i < 5; i++) {
-      const angle = (i / 5) * Math.PI * 2;
-      const dist = size * 0.12;
-      ctx.beginPath();
-      ctx.arc(Math.cos(angle) * dist, Math.sin(angle) * dist, size * 0.04, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.restore();
-  },
+  drawTudorRose,
 
   /**
    * Draw Oak Leaf (lobed English oak leaf)
