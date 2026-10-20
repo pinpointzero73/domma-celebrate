@@ -1,3 +1,5 @@
+import {drawHarp} from './heritage-drawing.js';
+import {drawDaffodil, drawDaffodilField, drawLeek, drawLeekBundle} from './botanical-drawing.js';
 import {drawWelshDragon} from './character-drawing.js';
 
 /**
@@ -87,7 +89,7 @@ export default {
     const yellowShades = ['#FFDD00', '#FFE135', '#FFED4E', '#FFF68F'];
     return {
       type: 'daffodil-petal',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]),  // Horizontal drift
       size: (config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0])) * 1.5,  // Larger petals
@@ -110,7 +112,7 @@ export default {
   createDaffodil(canvasWidth, canvasHeight, config) {
     return {
       type: 'daffodil',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]),  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]),
@@ -130,7 +132,7 @@ export default {
   createLeek(canvasWidth, canvasHeight, config) {
     return {
       type: 'leek',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.8,  // Horizontal drift (was vertical speed)
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]) * 1.2,
@@ -151,7 +153,7 @@ export default {
     const colors = ['#FFD700', '#FFFFFF', '#90EE90', '#98FB98']; // Gold, white, light green
     return {
       type: 'spring-sparkle',
-      x: -20,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.8,  // Horizontal drift (was vertical speed)
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]) * 0.6,
@@ -391,121 +393,12 @@ export default {
   /**
    * Draw daffodil (full flower)
    */
-  drawDaffodil(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Trumpet (center corona)
-    ctx.fillStyle = '#FFA500'; // Orange center
-    ctx.strokeStyle = '#FF8C00';
-    ctx.lineWidth = size * 0.08;
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.25, 0);
-    ctx.lineTo(-size * 0.3, size * 0.3);
-    ctx.lineTo(size * 0.3, size * 0.3);
-    ctx.lineTo(size * 0.25, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Petals (6 petals around trumpet)
-    ctx.fillStyle = '#FFDD00';
-    ctx.strokeStyle = '#FFC700';
-    ctx.lineWidth = size * 0.06;
-
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
-      ctx.save();
-      ctx.rotate(angle);
-      ctx.translate(0, -size * 0.7);
-
-      // Petal shape (pointed ellipse)
-      ctx.beginPath();
-      ctx.ellipse(0, 0, size * 0.4, size * 0.6, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    // Stem
-    ctx.strokeStyle = '#228B22';
-    ctx.lineWidth = size * 0.12;
-    ctx.beginPath();
-    ctx.moveTo(0, size * 0.3);
-    ctx.lineTo(0, size * 1.5);
-    ctx.stroke();
-
-    ctx.restore();
-  },
+  drawDaffodil,
 
   /**
    * Draw leek
    */
-  drawLeek(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // White bulb (bottom)
-    ctx.fillStyle = '#F5F5F5';
-    ctx.strokeStyle = '#DCDCDC';
-    ctx.lineWidth = size * 0.08;
-    ctx.beginPath();
-    ctx.ellipse(0, size * 1.2, size * 0.4, size * 0.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Green stalk/leaves
-    ctx.fillStyle = '#228B22';
-    ctx.strokeStyle = '#006400';
-    ctx.lineWidth = size * 0.05;
-
-    // Main stalk
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.3, size * 1.2);
-    ctx.quadraticCurveTo(-size * 0.25, size * 0.5, -size * 0.15, 0);
-    ctx.quadraticCurveTo(0, -size * 0.2, size * 0.15, 0);
-    ctx.quadraticCurveTo(size * 0.25, size * 0.5, size * 0.3, size * 1.2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Leaves spreading at top
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.15, 0);
-    ctx.quadraticCurveTo(-size * 0.6, -size * 0.3, -size * 0.8, 0);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(size * 0.15, 0);
-    ctx.quadraticCurveTo(size * 0.6, -size * 0.3, size * 0.8, 0);
-    ctx.stroke();
-
-    // Roots
-    ctx.strokeStyle = '#D2B48C';
-    ctx.lineWidth = size * 0.05;
-    for (let i = 0; i < 5; i++) {
-      const rootX = (i - 2) * size * 0.15;
-      ctx.beginPath();
-      ctx.moveTo(rootX, size * 1.5);
-      ctx.lineTo(rootX + Math.sin(i * 1.7) * size * 0.15, size * 1.8);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  },
+  drawLeek,
 
   /**
    * Draw spring sparkle
@@ -544,48 +437,7 @@ export default {
   /**
    * Draw daffodil field
    */
-  drawDaffodilField(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-
-    particle.flowers.forEach(flower => {
-      const sway = Math.sin(time * 0.001 + flower.swayPhase) * flower.size * 0.2;
-
-      ctx.save();
-      ctx.translate(x + flower.x, y - flower.y);
-      ctx.rotate(sway * 0.1);
-
-      // Stem
-      ctx.strokeStyle = '#228B22';
-      ctx.lineWidth = flower.size * 0.08;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(sway, -flower.size * 2);
-      ctx.stroke();
-
-      // Flower head (simplified)
-      ctx.fillStyle = '#FFDD00';
-      ctx.shadowColor = '#FFDD00';
-      ctx.shadowBlur = flower.size * 0.5;
-      ctx.beginPath();
-      ctx.arc(sway, -flower.size * 2, flower.size * 0.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Orange center
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#FFA500';
-      ctx.beginPath();
-      ctx.arc(sway, -flower.size * 2, flower.size * 0.25, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.restore();
-    });
-
-    ctx.restore();
-  },
+  drawDaffodilField,
 
   /**
    * Draw Welsh dragon
@@ -595,141 +447,12 @@ export default {
   /**
    * Draw Welsh harp (traditional instrument)
    */
-  drawHarp(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-
-    // Harp frame (curved wooden structure)
-    ctx.strokeStyle = '#8b4513';
-    ctx.lineWidth = size * 0.08;
-    ctx.lineCap = 'round';
-
-    // Curved pillar (left side)
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.3, size * 0.5);
-    ctx.bezierCurveTo(
-      -size * 0.5, size * 0.1,
-      -size * 0.4, -size * 0.4,
-      -size * 0.2, -size * 0.7
-    );
-    ctx.stroke();
-
-    // Straight neck (top)
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.2, -size * 0.7);
-    ctx.lineTo(size * 0.4, -size * 0.5);
-    ctx.stroke();
-
-    // Soundboard (right side)
-    ctx.beginPath();
-    ctx.moveTo(size * 0.4, -size * 0.5);
-    ctx.lineTo(-size * 0.3, size * 0.5);
-    ctx.stroke();
-
-    // Harp strings (golden)
-    ctx.strokeStyle = '#FFD700';
-    ctx.lineWidth = size * 0.02;
-    const stringCount = 12;
-    for (let i = 0; i < stringCount; i++) {
-      const t = i / (stringCount - 1);
-      const startX = -size * 0.3 + t * size * 0.65;
-      const startY = size * 0.5 - t * size * 1.0;
-      const endX = -size * 0.25 + t * size * 0.55;
-      const endY = -size * 0.65 + t * size * 0.15;
-
-      // Slight wave to strings
-      const wave = Math.sin(time * 0.003 + i * 0.3 + particle.glintPhase) * size * 0.02;
-
-      ctx.beginPath();
-      ctx.moveTo(startX + wave, startY);
-      ctx.lineTo(endX + wave, endY);
-      ctx.stroke();
-    }
-
-    // Decorative carvings on pillar (Celtic patterns)
-    ctx.strokeStyle = '#654321';
-    ctx.lineWidth = size * 0.03;
-    ctx.globalAlpha = 0.6;
-    for (let i = 0; i < 4; i++) {
-      const yPos = size * 0.3 - i * size * 0.25;
-      ctx.beginPath();
-      ctx.arc(-size * 0.35, yPos, size * 0.08, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  },
+  drawHarp,
 
   /**
    * Draw leek bundle (Welsh national vegetable)
    */
-  drawLeekBundle(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-
-    // Bundle of 5 leeks
-    for (let i = 0; i < 5; i++) {
-      ctx.save();
-      const offsetX = (i - 2) * size * 0.15;
-      const rotation = (i - 2) * 0.1;
-      ctx.translate(offsetX, 0);
-      ctx.rotate(rotation);
-
-      // Leek white part (bulb)
-      ctx.fillStyle = '#f5f5dc';
-      ctx.strokeStyle = '#d3d3c0';
-      ctx.lineWidth = 1;
-      ctx.fillRect(-size * 0.08, size * 0.2, size * 0.16, size * 0.6);
-      ctx.strokeRect(-size * 0.08, size * 0.2, size * 0.16, size * 0.6);
-
-      // Leek green part (leaves)
-      ctx.fillStyle = '#228B22';
-      ctx.strokeStyle = '#1a6b1a';
-      ctx.beginPath();
-      ctx.moveTo(-size * 0.08, size * 0.2);
-      ctx.lineTo(-size * 0.12, -size * 0.5);
-      ctx.lineTo(0, -size * 0.7);
-      ctx.lineTo(size * 0.12, -size * 0.5);
-      ctx.lineTo(size * 0.08, size * 0.2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // Leaf texture
-      ctx.strokeStyle = '#1a5a1a';
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(0, size * 0.2);
-      ctx.lineTo(0, -size * 0.65);
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    // Ribbon tying the bundle (red Welsh ribbon)
-    ctx.fillStyle = '#DC143C';
-    ctx.fillRect(-size * 0.5, size * 0.4, size, size * 0.12);
-
-    // Ribbon bow
-    ctx.beginPath();
-    ctx.ellipse(-size * 0.6, size * 0.46, size * 0.12, size * 0.08, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(size * 0.6, size * 0.46, size * 0.12, size * 0.08, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  },
+  drawLeekBundle,
 
   /**
    * Draw Welsh flag (Y Ddraig Goch - The Red Dragon)

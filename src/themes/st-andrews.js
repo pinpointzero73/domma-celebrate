@@ -1,3 +1,5 @@
+import {drawTartanPattern, drawHighlandScene} from './heritage-drawing.js';
+import {drawHeather, drawThistle, drawThistlePlant} from './botanical-drawing.js';
 import {drawBagpiper} from './character-drawing.js';
 
 /**
@@ -13,7 +15,6 @@ import {drawBagpiper} from './character-drawing.js';
  * - Blue and white color scheme with purple thistles
  */
 
-const tartanPatternCanvases = new WeakMap();
 
 export default {
   name: 'st-andrews',
@@ -90,7 +91,7 @@ export default {
     const purpleShades = ['#9370DB', '#BA55D3', '#DA70D6', '#DDA0DD', '#8B008B'];
     return {
       type: 'heather-petal',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]),  // Horizontal drift
       size: (config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0])) * 1.5,  // Larger petals
@@ -119,7 +120,7 @@ export default {
 
     return {
       type: 'thistle',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0]) * 0.7,  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]),
@@ -152,7 +153,7 @@ export default {
 
     return {
       type: 'heather',
-      x: -30,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.6,  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]),
@@ -177,7 +178,7 @@ export default {
     const colors = ['#0065BD', '#FFFFFF']; // Scottish blue and white
     return {
       type: 'saltire-sparkle',
-      x: -20,  // Start from left edge
+      x: Math.random() * canvasWidth,  // Start throughout the scene
       y: Math.random() * canvasHeight,  // Random height
       vx: (config.speedRange[0] + Math.random() * (config.speedRange[1] - config.speedRange[0])) * 0.8,  // Horizontal drift
       size: config.sizeRange[0] + Math.random() * (config.sizeRange[1] - config.sizeRange[0]) * 0.6,
@@ -428,289 +429,17 @@ export default {
   /**
    * Draw heather (Scottish Highland heather sprig with bell-shaped flowers)
    */
-  drawHeather(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-    const sway = Math.sin(particle.sway) * size * 0.4;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x + sway, y);
-    ctx.rotate(particle.rotation);
-
-    // Stem (thin green-brown)
-    ctx.strokeStyle = '#6b5c4d';
-    ctx.lineWidth = size * 0.12;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(0, size * 0.6);
-    ctx.lineTo(0, -size * 0.8);
-    ctx.stroke();
-
-    // Bell-shaped flowers along the stem (small purple bells)
-    const bellCount = particle.bellCount || 4;
-    for (let i = 0; i < bellCount; i++) {
-      const yPos = -size * 0.7 + (i / bellCount) * size * 1.2;
-      const bellSize = size * (0.18 + Math.random() * 0.08);
-      const side = i % 2 === 0 ? 1 : -1; // Alternate sides
-
-      ctx.save();
-      ctx.translate(side * size * 0.15, yPos);
-      ctx.rotate(side * 0.3);
-
-      // Bell flower (small oval with darker top)
-      const bellGradient = ctx.createLinearGradient(0, -bellSize, 0, bellSize * 0.3);
-      bellGradient.addColorStop(0, particle.color);
-      bellGradient.addColorStop(0.6, particle.color);
-      bellGradient.addColorStop(1, `${particle.color}CC`); // Slightly darker at bottom
-      ctx.fillStyle = bellGradient;
-
-      // Bell shape (elongated oval, wider at bottom)
-      ctx.beginPath();
-      ctx.ellipse(0, 0, bellSize * 0.4, bellSize, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Bell opening (darker rim)
-      ctx.strokeStyle = `${particle.color}AA`;
-      ctx.lineWidth = bellSize * 0.1;
-      ctx.beginPath();
-      ctx.ellipse(0, bellSize * 0.7, bellSize * 0.35, bellSize * 0.15, 0, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Small stamen (thin line protruding from bell)
-      ctx.strokeStyle = '#8B7355';
-      ctx.lineWidth = bellSize * 0.08;
-      ctx.beginPath();
-      ctx.moveTo(0, bellSize * 0.8);
-      ctx.lineTo(0, bellSize * 1.1);
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    // Small leaves at base (green-grey)
-    ctx.fillStyle = '#6b8b6b';
-    for (let i = 0; i < 3; i++) {
-      const angle = (i / 3) * Math.PI * 2 - Math.PI / 2;
-      ctx.save();
-      ctx.rotate(angle);
-      ctx.beginPath();
-      ctx.ellipse(0, size * 0.5, size * 0.1, size * 0.25, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    ctx.restore();
-  },
+  drawHeather,
 
   /**
    * Draw thistle (Scottish thistle with realistic spiky bracts)
    */
-  drawThistle(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Stem (woody, slightly curved)
-    ctx.strokeStyle = '#5a704a';
-    ctx.lineWidth = size * 0.1;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(0, size * 2);
-    ctx.quadraticCurveTo(size * 0.1, size * 1.2, 0, size * 0.5);
-    ctx.stroke();
-
-    // Spiky bracts (green spiny base around flower head)
-    const bractCount = 16;
-    ctx.strokeStyle = '#4a7a3a';
-    ctx.fillStyle = '#5a8a4a';
-    ctx.lineWidth = size * 0.06;
-    ctx.lineCap = 'round';
-
-    for (let i = 0; i < bractCount; i++) {
-      const angle = (i / bractCount) * Math.PI * 2;
-      const bractLength = size * (0.35 + Math.random() * 0.15);
-      const bendAngle = angle + (Math.random() - 0.5) * 0.3;
-
-      // Bract spine (sharp and pointed)
-      ctx.save();
-      ctx.rotate(angle);
-      ctx.beginPath();
-      ctx.moveTo(0, -size * 0.2);
-
-      // Curved spiky bract
-      const controlX = size * 0.15;
-      const controlY = -size * 0.3;
-      const endX = Math.sin(0.4) * bractLength;
-      const endY = -Math.cos(0.4) * bractLength - size * 0.2;
-
-      ctx.quadraticCurveTo(controlX, controlY, endX, endY);
-      ctx.stroke();
-
-      // Tiny spines along bract edge
-      for (let j = 0; j < 3; j++) {
-        const t = (j + 1) / 4;
-        const spineX = t * endX;
-        const spineY = -size * 0.2 + t * (endY + size * 0.2);
-        ctx.beginPath();
-        ctx.moveTo(spineX, spineY);
-        ctx.lineTo(spineX + size * 0.08, spineY - size * 0.06);
-        ctx.stroke();
-      }
-
-      ctx.restore();
-    }
-
-    // Flower head base (bulbous receptacle)
-    ctx.fillStyle = '#6a8a5a';
-    ctx.beginPath();
-    ctx.ellipse(0, -size * 0.15, size * 0.28, size * 0.35, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Flower petals (white or blue - Scottish Saltire colors)
-    const petalLayers = 3;
-    const petalColors = particle.petalColors || ['#9b59b6', '#b980d1', '#d4a5e3']; // Fallback to purple
-
-    for (let layer = 0; layer < petalLayers; layer++) {
-      const layerRadius = size * (0.25 + layer * 0.08);
-      const petalCount = 8 + layer * 4;
-      const layerColor = petalColors[layer];
-
-      ctx.fillStyle = layerColor;
-
-      for (let i = 0; i < petalCount; i++) {
-        const angle = (i / petalCount) * Math.PI * 2 + layer * 0.15;
-        const petalX = Math.cos(angle) * layerRadius;
-        const petalY = Math.sin(angle) * layerRadius - size * 0.15;
-
-        // Thin wispy petal
-        ctx.save();
-        ctx.translate(petalX, petalY);
-        ctx.rotate(angle);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, -size * (0.2 + layer * 0.05));
-        ctx.lineWidth = size * 0.02;
-        ctx.strokeStyle = layerColor;
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-
-    // Serrated leaves (2-3 along stem with spiny edges)
-    ctx.fillStyle = '#4a6a3a';
-    ctx.strokeStyle = '#3a5a2a';
-    ctx.lineWidth = 1;
-
-    for (let i = 0; i < 2; i++) {
-      const leafY = size * (0.8 + i * 0.6);
-      const leafSide = i % 2 === 0 ? 1 : -1;
-
-      ctx.save();
-      ctx.translate(0, leafY);
-
-      // Leaf base shape with deep serrations
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-
-      // Create deeply lobed, spiny leaf edge
-      const lobes = 5;
-      const depth = size * 0.15;  // Moved outside loop so it's accessible below
-
-      for (let j = 0; j <= lobes; j++) {
-        const t = j / lobes;
-        const leafWidth = size * 0.25 * Math.sin(t * Math.PI);
-
-        if (j < lobes) {
-          // Deep cut between lobes
-          ctx.lineTo(leafSide * leafWidth * 0.3, -depth * t);
-          // Sharp spine point
-          ctx.lineTo(leafSide * (leafWidth + size * 0.08), -depth * (t + 0.05));
-          ctx.lineTo(leafSide * leafWidth * 0.7, -depth * (t + 0.1));
-        } else {
-          ctx.lineTo(0, -depth);
-        }
-      }
-
-      // Return path (smooth inner edge)
-      ctx.quadraticCurveTo(leafSide * size * 0.05, -depth * 0.5, 0, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // Leaf vein
-      ctx.strokeStyle = '#2a4a1a';
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, -depth);
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    ctx.restore();
-  },
+  drawThistle,
 
   /**
    * Draw thistle plant (ground decoration)
    */
-  drawThistlePlant(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    // Gentle sway
-    const sway = Math.sin(time * 0.001 + particle.swayPhase) * 0.1;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(sway);
-
-    // Multiple stems
-    for (let stem = 0; stem < 3; stem++) {
-      const stemX = (stem - 1) * size * 0.4;
-      const stemHeight = size * (1.5 + stem * 0.3);
-
-      // Stem
-      ctx.strokeStyle = '#8B4513';
-      ctx.lineWidth = size * 0.1;
-      ctx.beginPath();
-      ctx.moveTo(stemX, 0);
-      ctx.quadraticCurveTo(stemX + sway * size, -stemHeight * 0.5, stemX, -stemHeight);
-      ctx.stroke();
-
-      // Flower head
-      ctx.fillStyle = '#8B008B';
-      ctx.beginPath();
-      ctx.arc(stemX, -stemHeight, size * 0.4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Spikes
-      const spikeCount = 8;
-      ctx.strokeStyle = '#8B008B';
-      ctx.lineWidth = size * 0.05;
-      for (let i = 0; i < spikeCount; i++) {
-        const angle = (i / spikeCount) * Math.PI * 2;
-        ctx.beginPath();
-        ctx.moveTo(stemX, -stemHeight);
-        ctx.lineTo(
-          stemX + Math.cos(angle) * size * 0.6,
-          -stemHeight + Math.sin(angle) * size * 0.6
-        );
-        ctx.stroke();
-      }
-    }
-
-    ctx.restore();
-  },
+  drawThistlePlant,
 
   /**
    * Draw bagpiper
@@ -827,233 +556,12 @@ export default {
   /**
    * Draw authentic Scottish tartan pattern (Stewart/Royal Stewart style)
    */
-  drawTartanPattern(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-
-    // Create authentic tartan weave pattern
-    const patternSize = 120; // Smaller repeating unit
-    const patternDocument = ctx.canvas?.ownerDocument || document;
-    let patternCanvas = tartanPatternCanvases.get(patternDocument);
-    if (!patternCanvas) {
-      patternCanvas = patternDocument.createElement('canvas');
-      patternCanvas.width = patternSize;
-      patternCanvas.height = patternSize;
-      const pCtx = patternCanvas.getContext('2d');
-
-    // Royal Stewart tartan colors
-    const NAVY = '#1a237e';
-    const RED = '#c62828';
-    const FOREST = '#1b5e20';
-    const YELLOW = '#f9a825';
-    const WHITE = '#ffffff';
-    const BLACK = '#000000';
-
-    // Tartan stripe sequence (width, color) - authentic Royal Stewart pattern
-    const stripeSequence = [
-      [4, RED], [2, BLACK], [2, RED], [2, BLACK], [4, RED],
-      [8, NAVY], [2, BLACK], [2, NAVY], [2, BLACK], [8, NAVY],
-      [2, FOREST], [2, YELLOW], [2, FOREST],
-      [8, NAVY], [2, BLACK], [2, NAVY], [2, BLACK], [8, NAVY],
-      [4, RED], [2, BLACK], [2, RED], [2, BLACK], [4, RED]
-    ];
-
-    // Draw horizontal stripes
-    let ypos = 0;
-    for (let i = 0; i < 2; i++) { // Repeat pattern twice
-      for (const [width, color] of stripeSequence) {
-        pCtx.fillStyle = color;
-        pCtx.fillRect(0, ypos, patternSize, width);
-        ypos += width;
-      }
-    }
-
-    // Draw vertical stripes with blending (creates the weave effect)
-    pCtx.globalCompositeOperation = 'multiply';
-    pCtx.globalAlpha = 0.8;
-
-    let xpos = 0;
-    for (let i = 0; i < 2; i++) { // Repeat pattern twice
-      for (const [width, color] of stripeSequence) {
-        pCtx.fillStyle = color;
-        pCtx.fillRect(xpos, 0, width, patternSize);
-        xpos += width;
-      }
-    }
-
-    // Add white highlights (creates tartan shine)
-    pCtx.globalCompositeOperation = 'lighten';
-    pCtx.globalAlpha = 0.15;
-    xpos = 0;
-    for (let i = 0; i < 2; i++) {
-      for (const [width, color] of stripeSequence) {
-        if (color === YELLOW || color === WHITE) {
-          pCtx.fillStyle = WHITE;
-          pCtx.fillRect(xpos, 0, width, patternSize);
-        }
-        xpos += width;
-      }
-    }
-
-    // Reset composite operation
-    pCtx.globalCompositeOperation = 'source-over';
-    pCtx.globalAlpha = 1;
-      tartanPatternCanvases.set(patternDocument, patternCanvas);
-    }
-
-    // Draw the tartan pattern (tiled)
-    const pattern = ctx.createPattern(patternCanvas, 'repeat');
-    ctx.fillStyle = pattern;
-    ctx.fillRect(-size / 2, -size / 2, size, size);
-
-    // Fabric edge (darker border to show it's fabric)
-    ctx.strokeStyle = '#2a2a2a';
-    ctx.lineWidth = size * 0.03;
-    ctx.strokeRect(-size / 2, -size / 2, size, size);
-
-    // Inner decorative border (silver/white tartan trim)
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = size * 0.015;
-    ctx.strokeRect(-size / 2 + size * 0.04, -size / 2 + size * 0.04,
-                    size - size * 0.08, size - size * 0.08);
-
-    // Fabric texture overlay (subtle diagonal lines)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 0.5;
-    for (let i = -size; i < size; i += 4) {
-      ctx.beginPath();
-      ctx.moveTo(-size / 2 + i, -size / 2);
-      ctx.lineTo(-size / 2 + i + size, size / 2);
-      ctx.stroke();
-    }
-
-    // Silver thistle brooch in corner (holds the tartan)
-    ctx.save();
-    ctx.translate(-size * 0.35, -size * 0.35);
-
-    // Brooch circle (silver)
-    ctx.fillStyle = '#c0c0c0';
-    ctx.strokeStyle = '#808080';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.08, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Thistle emblem on brooch
-    ctx.scale(0.06, 0.06);
-    ctx.fillStyle = '#8B008B';
-    ctx.strokeStyle = '#6A006A';
-    ctx.lineWidth = 2;
-
-    // Stylized thistle flower
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(Math.cos(angle) * size * 0.4, Math.sin(angle) * size * 0.4);
-      ctx.stroke();
-    }
-
-    // Center dot
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 0.15, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-
-    ctx.restore();
-  },
+  drawTartanPattern,
 
   /**
    * Draw Highland scene silhouette (mountains, castle, loch)
    */
-  drawHighlandScene(ctx, particle) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-
-    // Sky gradient (misty blue)
-    const skyGradient = ctx.createLinearGradient(0, -size, 0, size * 0.5);
-    skyGradient.addColorStop(0, '#4a7ba7');
-    skyGradient.addColorStop(1, '#b0c4de');
-    ctx.fillStyle = skyGradient;
-    ctx.fillRect(-size, -size, size * 2, size * 1.5);
-
-    // Distant mountains (layered)
-    ctx.fillStyle = 'rgba(80, 100, 130, 0.6)';
-    ctx.beginPath();
-    ctx.moveTo(-size, size * 0.3);
-    ctx.lineTo(-size * 0.6, -size * 0.3);
-    ctx.lineTo(-size * 0.2, size * 0.1);
-    ctx.lineTo(size * 0.2, -size * 0.5);
-    ctx.lineTo(size * 0.6, size * 0.2);
-    ctx.lineTo(size, size * 0.3);
-    ctx.closePath();
-    ctx.fill();
-
-    // Closer mountains (darker)
-    ctx.fillStyle = 'rgba(60, 80, 100, 0.8)';
-    ctx.beginPath();
-    ctx.moveTo(-size, size * 0.4);
-    ctx.lineTo(-size * 0.7, size * 0.1);
-    ctx.lineTo(-size * 0.3, -size * 0.1);
-    ctx.lineTo(size * 0.1, -size * 0.2);
-    ctx.lineTo(size * 0.5, size * 0.15);
-    ctx.lineTo(size, size * 0.4);
-    ctx.closePath();
-    ctx.fill();
-
-    // Highland castle silhouette (on hill)
-    ctx.fillStyle = '#2a3a4a';
-
-    // Castle base
-    ctx.fillRect(-size * 0.15, size * 0.25, size * 0.3, size * 0.2);
-
-    // Castle tower (left)
-    ctx.fillRect(-size * 0.2, size * 0.15, size * 0.1, size * 0.15);
-
-    // Castle tower (right)
-    ctx.fillRect(size * 0.1, size * 0.15, size * 0.1, size * 0.15);
-
-    // Central keep (tall)
-    ctx.fillRect(-size * 0.06, size * 0.05, size * 0.12, size * 0.25);
-
-    // Battlements
-    for (let i = 0; i < 5; i++) {
-      if (i % 2 === 0) {
-        ctx.fillRect(-size * 0.06 + i * size * 0.06, size * 0.02, size * 0.03, size * 0.03);
-      }
-    }
-
-    // Loch (water) at bottom
-    const lochGradient = ctx.createLinearGradient(0, size * 0.45, 0, size * 0.6);
-    lochGradient.addColorStop(0, '#1e3a5f');
-    lochGradient.addColorStop(1, '#0a1f3d');
-    ctx.fillStyle = lochGradient;
-    ctx.fillRect(-size, size * 0.45, size * 2, size * 0.15);
-
-    // Reflection in loch (simplified)
-    ctx.globalAlpha = particle.opacity * 0.3;
-    ctx.fillStyle = '#4a6a8a';
-    ctx.fillRect(-size * 0.15, size * 0.48, size * 0.3, size * 0.08);
-
-    // Mist over loch
-    ctx.globalAlpha = particle.opacity * 0.2;
-    ctx.fillStyle = '#d0e0f0';
-    ctx.fillRect(-size, size * 0.5, size * 2, size * 0.05);
-
-    ctx.restore();
-  },
+  drawHighlandScene,
 
   /**
    * Draw twinkling star

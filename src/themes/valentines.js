@@ -1,3 +1,4 @@
+import {drawLips, drawLoveLetter, drawEnvelope, drawHeartGarland} from './romantic-drawing.js';
 import {drawCupid} from './character-drawing.js';
 
 import {drawIllustratedButterfly} from './butterfly-drawing.js';
@@ -543,111 +544,7 @@ export default {
   /**
    * Draw kissy lips with puckered effect
    */
-  drawLips(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    // Pulsing/kissing effect
-    const pulse = 1 + Math.sin(time * particle.pulseSpeed + particle.pulsePhase) * 0.1;
-    const kissAnimation = Math.sin(time * 0.008 + particle.kissPhase);
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-    ctx.scale(pulse, pulse);
-
-    // Lip color with gradient (darker at edges)
-    const lipGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 2);
-    lipGradient.addColorStop(0, particle.color);
-    lipGradient.addColorStop(0.6, particle.color);
-    lipGradient.addColorStop(1, '#8b0000');
-
-    ctx.fillStyle = lipGradient;
-    ctx.strokeStyle = '#8b0000';
-    ctx.lineWidth = size * 0.1;
-
-    // Upper lip (two curves meeting in middle)
-    ctx.beginPath();
-    ctx.moveTo(-size, 0);
-    // Left side of cupid's bow
-    ctx.bezierCurveTo(
-      -size * 0.8, -size * 0.8,
-      -size * 0.3, -size * 1.0,
-      0, -size * 0.6
-    );
-    // Right side of cupid's bow
-    ctx.bezierCurveTo(
-      size * 0.3, -size * 1.0,
-      size * 0.8, -size * 0.8,
-      size, 0
-    );
-    ctx.fill();
-    ctx.stroke();
-
-    // Lower lip (fuller, puckered)
-    const puckerAmount = kissAnimation * size * 0.15;
-    ctx.beginPath();
-    ctx.moveTo(-size, 0);
-    ctx.bezierCurveTo(
-      -size * 0.7, size * (0.7 + puckerAmount),
-      -size * 0.3, size * (1.0 + puckerAmount),
-      0, size * (0.8 + puckerAmount)
-    );
-    ctx.bezierCurveTo(
-      size * 0.3, size * (1.0 + puckerAmount),
-      size * 0.7, size * (0.7 + puckerAmount),
-      size, 0
-    );
-    ctx.fill();
-    ctx.stroke();
-
-    // Glossy highlight on upper lip
-    ctx.globalAlpha = particle.opacity * 0.5;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.beginPath();
-    ctx.ellipse(-size * 0.4, -size * 0.4, size * 0.2, size * 0.15, -0.3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(size * 0.4, -size * 0.4, size * 0.2, size * 0.15, 0.3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Glossy highlight on lower lip (center)
-    ctx.beginPath();
-    ctx.ellipse(0, size * 0.5, size * 0.3, size * 0.2, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Optional: add tiny sparkle for "mwah" kiss effect
-    if (kissAnimation > 0.8) {
-      const sparkleDistance = size * 1.5;
-      const sparkleX = Math.sin(particle.kissPhase) * sparkleDistance;
-      const sparkleY = -Math.abs(Math.cos(particle.kissPhase)) * sparkleDistance;
-
-      ctx.globalAlpha = particle.opacity * (kissAnimation - 0.8) * 5;
-      ctx.fillStyle = '#ffd700';
-      ctx.shadowColor = '#ffd700';
-      ctx.shadowBlur = size * 0.5;
-      ctx.beginPath();
-      ctx.arc(sparkleX, sparkleY, size * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Star sparkle
-      for (let i = 0; i < 4; i++) {
-        const angle = (i / 4) * Math.PI * 2 + time * 0.01;
-        const tipX = sparkleX + Math.cos(angle) * size * 0.4;
-        const tipY = sparkleY + Math.sin(angle) * size * 0.4;
-        ctx.beginPath();
-        ctx.moveTo(sparkleX, sparkleY);
-        ctx.lineTo(tipX, tipY);
-        ctx.lineWidth = size * 0.05;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
-      }
-    }
-
-    ctx.restore();
-  },
+  drawLips,
 
   /**
    * Draw cupid (side profile)
@@ -657,162 +554,17 @@ export default {
   /**
    * Draw love letter
    */
-  drawLoveLetter(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Envelope
-    ctx.fillStyle = '#fff5e6';
-    ctx.strokeStyle = '#daa520';
-    ctx.lineWidth = 1;
-    ctx.fillRect(-size, -size * 0.7, size * 2, size * 1.4);
-    ctx.strokeRect(-size, -size * 0.7, size * 2, size * 1.4);
-
-    // Envelope flap (top triangle)
-    ctx.fillStyle = '#ffe4b3';
-    ctx.beginPath();
-    ctx.moveTo(-size, -size * 0.7);
-    ctx.lineTo(0, 0);
-    ctx.lineTo(size, -size * 0.7);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Heart seal
-    ctx.fillStyle = '#dc143c';
-    ctx.shadowColor = '#dc143c';
-    ctx.shadowBlur = 5;
-    ctx.beginPath();
-    ctx.moveTo(0, size * 0.1);
-    ctx.bezierCurveTo(-size * 0.3, -size * 0.1, -size * 0.2, -size * 0.3, 0, -size * 0.15);
-    ctx.bezierCurveTo(size * 0.2, -size * 0.3, size * 0.3, -size * 0.1, 0, size * 0.1);
-    ctx.closePath();
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    ctx.restore();
-  },
+  drawLoveLetter,
 
   /**
    * Draw heart garland
    */
-  drawHeartGarland(ctx, particle, time) {
-    const y = particle.y;
-    const width = particle.width;
-    const sag = particle.sag;
-    const hearts = particle.hearts;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-
-    // Sway effect
-    const swayOffset = Math.sin(time * 0.001 + particle.swayPhase) * particle.swayAmplitude;
-
-    // String
-    ctx.strokeStyle = '#daa520';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.quadraticCurveTo(width / 2, y + sag + swayOffset, width, y);
-    ctx.stroke();
-
-    // Hearts along the string
-    hearts.forEach(heart => {
-      const heartX = heart.offset * width;
-      const heartY = y + Math.sin(Math.PI * heart.offset) * (sag + swayOffset);
-
-      // Pulsing
-      const pulse = 1 + Math.sin(time * 0.003 + heart.pulsePhase) * 0.1;
-
-      ctx.save();
-      ctx.translate(heartX, heartY);
-      ctx.scale(pulse, pulse);
-
-      ctx.fillStyle = heart.color;
-      ctx.shadowColor = heart.color;
-      ctx.shadowBlur = heart.size * 0.5;
-
-      // Heart shape
-      ctx.beginPath();
-      ctx.moveTo(0, heart.size * 0.3);
-      ctx.bezierCurveTo(
-        -heart.size, -heart.size * 0.3,
-        -heart.size * 0.6, -heart.size,
-        0, -heart.size * 0.4
-      );
-      ctx.bezierCurveTo(
-        heart.size * 0.6, -heart.size,
-        heart.size, -heart.size * 0.3,
-        0, heart.size * 0.3
-      );
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.shadowBlur = 0;
-      ctx.restore();
-    });
-
-    ctx.restore();
-  },
+  drawHeartGarland,
 
   /**
    * Draw love letter/envelope
    */
-  drawEnvelope(ctx, particle, time) {
-    const x = particle.x;
-    const y = particle.y;
-    const size = particle.size;
-
-    ctx.save();
-    ctx.globalAlpha = particle.opacity;
-    ctx.translate(x, y);
-    ctx.rotate(particle.rotation);
-
-    // Envelope body
-    ctx.fillStyle = '#fff5f5';
-    ctx.strokeStyle = '#ff69b4';
-    ctx.lineWidth = size * 0.05;
-    ctx.fillRect(-size * 0.7, -size * 0.5, size * 1.4, size);
-    ctx.strokeRect(-size * 0.7, -size * 0.5, size * 1.4, size);
-
-    // Envelope flap (closed)
-    ctx.fillStyle = '#ffe4e1';
-    ctx.beginPath();
-    ctx.moveTo(-size * 0.7, -size * 0.5);
-    ctx.lineTo(0, size * 0.1);
-    ctx.lineTo(size * 0.7, -size * 0.5);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Heart seal
-    ctx.fillStyle = '#ff1493';
-    ctx.shadowColor = '#ff1493';
-    ctx.shadowBlur = size * 0.3;
-    ctx.beginPath();
-    ctx.moveTo(0, size * 0.25);
-    ctx.bezierCurveTo(
-      -size * 0.3, -size * 0.1,
-      -size * 0.2, -size * 0.3,
-      0, -size * 0.15
-    );
-    ctx.bezierCurveTo(
-      size * 0.2, -size * 0.3,
-      size * 0.3, -size * 0.1,
-      0, size * 0.25
-    );
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-    ctx.restore();
-  },
+  drawEnvelope,
 
   /**
    * Draw butterfly

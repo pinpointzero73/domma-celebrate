@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en-GB">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seasonal details - illustration studio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#121c24;color:#eee6d4;font:16px/1.6 system-ui}main{max-width:1250px;margin:auto;padding:40px 24px 70px}h1{font:500 clamp(32px,5vw,52px)/1.15 Georgia,serif;margin:10px 0}h2{font:500 23px Georgia,serif;margin:18px 0 10px}.eyebrow{text-transform:uppercase;font-size:12px;letter-spacing:.15em;color:#d3b17b}p{color:#b8c4c7;max-width:750px}button,select{font:inherit;background:#d8bc87;color:#263637;border:1px solid #ab956f;border-radius:7px;padding:9px 13px;cursor:pointer}button[aria-pressed=true]{background:#f2d9ab}label{display:inline-flex;gap:8px;align-items:center}.controls{display:flex;flex-wrap:wrap;gap:12px;margin:25px 0}.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}article p{font-size:13px;margin:0 0 9px}canvas{display:block;width:100%;height:280px;background:radial-gradient(ellipse at 50% 30%,#293d48,#152732);border:1px solid #40545b;border-radius:12px}.light canvas{background:#f1eddf;border-color:#d5cdb9}.light{background:#e8e1d1;color:#394d4d}.light p{color:#5e6d68}.light .eyebrow{color:#8b6643}.controls~p{font-size:13px}#scene{position:relative;height:500px;overflow:hidden;border-radius:12px;background:#1b2d37;border:1px solid #40545b;margin-top:20px}#scene canvas{background:none;border:0;border-radius:0;position:absolute}.scene-copy p{color:#b8c4c7}.scene-copy{position:absolute;top:30px;left:30px;color:#e9ddc3;max-width:340px}a{color:#d3b17b}details{margin-top:35px}summary{cursor:pointer;font-size:20px}article[hidden]{display:none}@media(max-width:900px){.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:550px){.gallery{grid-template-columns:1fr}main{padding:26px 16px}.controls{gap:8px}}
+</style>
+<main>
+<span class="eyebrow">The seasonal illustration studio</span>
+<h1>The little things, beautifully drawn.</h1>
+<p>Flowers, folklore and keepsakes. A fresh collection of seasonal details to sit alongside the new characters and castles.</p>
+<div class="controls">
+<button id="compare" aria-pressed="false">Show original</button>
+<button id="pause" aria-pressed="false">Pause animation</button>
+<button id="background" aria-pressed="false">Light background</button>
+<label>Celebration <select id="filter"><option value="all">All celebrations</option><option value="st-georges">St George's Day</option><option value="st-andrews">St Andrew's Day</option><option value="st-davids">St David's Day</option><option value="st-patricks">St Patrick's Day</option><option value="halloween">Halloween</option><option value="valentines">Valentine's Day</option></select></label>
+</div>
+<p id="status" role="status">Loading the illustrations...</p>
+<div class="gallery"></div>
+<details id="scene-details"><summary>See the artwork in a full celebration</summary>
+<div class="controls"><label>Scene <select id="scene-theme"><option value="st-georges">St George's Day</option><option value="st-andrews">St Andrew's Day</option><option value="st-davids">St David's Day</option><option value="st-patricks">St Patrick's Day</option><option value="halloween">Halloween</option><option value="valentines">Valentine's Day</option></select></label></div>
+<div id="scene"><div class="scene-copy"><h2>A little seasonal atmosphere.</h2><p>The complete scene, with falling petals, plants and visiting characters.</p></div></div>
+</details>
+</main>
+<script type="module" src="./remaining-illustrations.js"></script>
+</html>

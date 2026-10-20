@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0] - 2026-10-20
+
+- Seed Patron Saints' Day background particles throughout the scene from the first frame, retaining their gentle horizontal drift.
+
+- Redraw the St George's Day castle with limestone drum towers, battlements, a raised keep and an arched portcullis.
+- Redraw the remaining heritage flowers and props, Highland scene, banshee, Halloween props and Valentine's keepsakes with coordinated shaded illustrations. Ground and grouped decorations share the new artwork.
+- Add a 26-drawing comparison gallery with light and dark backgrounds, animation controls and complete celebration scenes.
+
 ## [1.4.0] - 2026-10-15
 
 - Add custom sparkler messages with names and year substitution, plus Graduation, Birthday, Anniversary, Autumn and standalone greetings.
