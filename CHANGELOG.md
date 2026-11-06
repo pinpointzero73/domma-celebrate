@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1] - 2026-11-06
+
+### Changed
+
+- Refresh Rollup and Terser build dependencies and move the test environment to Vitest 5 and jsdom 31.
+- Verify the rebuilt browser, CommonJS and ES module artifacts against the current toolchain.
+
 ## [1.5.0] - 2026-10-20
 
 - Seed Patron Saints' Day background particles throughout the scene from the first frame, retaining their gentle horizontal drift.

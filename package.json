@@ -1,6 +1,6 @@
 {
   "name": "domma-celebrate",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Seasonal canvas celebrations for any website - twenty themes that know their own place in the calendar. The celebrations engine of Domma, usable standalone.",
   "author": "Darryl Waterhouse",
   "license": "MPL-2.0",
@@ -55,9 +55,9 @@
   ],
   "devDependencies": {
     "@rollup/plugin-replace": "^6.0.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "jsdom": "24.1.3",
-    "rollup": "4.62.2",
-    "vitest": "4.1.9"
+    "@rollup/plugin-terser": "^1.0.2",
+    "jsdom": "31.0.0",
+    "rollup": "4.68.0",
+    "vitest": "5.1.0"
   }
 }
